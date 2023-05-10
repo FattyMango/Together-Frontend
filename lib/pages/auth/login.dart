@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> check_user() async {
     super.initState();
     final prefs = await SharedPreferences.getInstance();
-
+    // prefs.remove('user');
     final String userJson = await prefs.getString('user') ?? '';
     if (userJson != '') {
       UserDeserializer user = new UserDeserializer(userJson);
@@ -58,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
       // Make the API request to authenticate the user
 
       var data =
-          await post_request(url: 'http://localhost/user/api/login/', body: {
+          await post_request(url: 'http://143.42.55.127/user/api/login/', body: {
         'username': _justID.toString(),
         'password': _password,
       });

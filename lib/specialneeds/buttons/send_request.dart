@@ -4,22 +4,24 @@ import '../../../deserializers/request.dart';
 import '../../../deserializers/user.dart';
 
 class SendRequestButton extends StatefulWidget {
-
+final Function submit_request;
    const SendRequestButton(
-      {super.key});
-      
-    State<StatefulWidget> createState() => _SendRequestButtonState();
-  
-  
+      {super.key, required this.submit_request});
+
+  @override
+  State<SendRequestButton> createState() => _SendRequestButtonState();
 }
+
 class _SendRequestButtonState extends State<SendRequestButton> {
-  on_press(){}
   String get_text(){
     return "Request help!";
   }
+
   Color get_primary_color(){return Color.fromARGB(231, 5, 146, 171);}
+
   Color get_secondary_color(){return Color.fromARGB(231, 242, 253, 255);}
-  Widget get_button(){
+
+  Widget get get_button{
     return Container(
       decoration: BoxDecoration(
           color: get_secondary_color(),
@@ -36,7 +38,7 @@ class _SendRequestButtonState extends State<SendRequestButton> {
       width: 145,
       height: 50,
       child: ElevatedButton(
-        onPressed: () async => {await on_press()},
+        onPressed: (){widget.submit_request();},
         child: Text(
           get_text(),
           style: TextStyle(color: get_primary_color()),
@@ -47,7 +49,7 @@ class _SendRequestButtonState extends State<SendRequestButton> {
       ),
     );
   }
-  @override
-  Widget build(BuildContext context) => get_button();
 
+  @override
+  Widget build(BuildContext context) => get_button;
 }

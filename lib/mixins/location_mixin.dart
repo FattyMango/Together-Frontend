@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 
 mixin LocationFetcherMixin on AbstractHomePageState {
-  Future<Position> _determinePosition() async {
+  Future<Position> determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
 

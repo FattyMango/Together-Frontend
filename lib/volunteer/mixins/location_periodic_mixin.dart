@@ -61,7 +61,7 @@ mixin LocationPeriodicMixin on AbstractHomePageState {
     if (is_online)
       await get_request(
           url:
-              "http://localhost/location/update/volunteer/32.494685/35.986186/",
+              "http://143.42.55.127/location/update/volunteer/32.494685/35.986186/",
           headers: {"Authorization": "Token " + this.user.token});
   }
 }

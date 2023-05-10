@@ -7,7 +7,7 @@ class RequestDeserializer {
   late int _id;
   late String _help_type,_request_websocket,_chatroom_websocket,_gender;
   late latLng.LatLng _latlong;
-  late UserDeserializer _specialNeed;
+  late UserDeserializer? _specialNeed;
   RequestDeserializer(requestJson) {
 
     if (requestJson.runtimeType == String)
@@ -36,7 +36,11 @@ class RequestDeserializer {
     _request_websocket= _data["request_websocket"];
     _chatroom_websocket= _data["chatroom_websocket"];
     _gender= _data["gender"];
-    _specialNeed= new UserDeserializer(json.encode(_data["specialNeed"]));
+    try{
+    _specialNeed= new UserDeserializer(json.encode(_data["specialNeed"]));}
+    catch(e){
+      _specialNeed = null;
+    }
 
 
   }
@@ -58,7 +62,7 @@ class RequestDeserializer {
     return _id;
   }
   UserDeserializer get specialNeed{
-    return _specialNeed;
+    return _specialNeed!;
   }
 
   }

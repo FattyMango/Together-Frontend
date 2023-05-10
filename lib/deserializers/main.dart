@@ -38,8 +38,8 @@ void main() {
       "location": "32.494685,35.986186",
       "help_type": "E",
       "gender": "M",
-      "request_websocket": "ws://localhost/ws/request/3/",
-      "chatroom_websocket": "ws://localhost/ws/chatroom/3/"
+      "request_websocket": "ws://143.42.55.127/ws/request/3/",
+      "chatroom_websocket": "ws://143.42.55.127/ws/chatroom/3/"
     }
   };
 

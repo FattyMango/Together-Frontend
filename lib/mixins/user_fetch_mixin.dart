@@ -30,7 +30,7 @@ mixin UserFtecherMixin on AbstractHomePageState {
     user = new UserDeserializer(userJson);
 
     var data = await get_request(
-        url: 'http://localhost/user/api/',
+        url: 'http://143.42.55.127/user/api/',
         headers: {"Authorization": "Token " + user.token});
 
     if (data["response"] == "Error")

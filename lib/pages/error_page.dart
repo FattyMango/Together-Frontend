@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'theme_container.dart';
 
-Widget show_error_page(context, SharedPreferences prefs, String message) {
+Widget show_error_page(context, SharedPreferences? prefs, String message) {
   return ThemeContainer(
     children: [
       Center(
@@ -18,7 +18,9 @@ Widget show_error_page(context, SharedPreferences prefs, String message) {
       Center(
         child: GestureDetector(
             onTap: () {
-              prefs.remove('user');
+            
+              prefs!=null?
+              prefs.remove('user'):null;
               Navigator.pushReplacementNamed(context, "/login");
             },
             child: Container(

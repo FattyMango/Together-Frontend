@@ -20,7 +20,7 @@ class DeclineRequestButton extends AbstractRequestButton {
 class _DeclineRequestButtonState extends AbstractRequestButtonState {
   decline_request() async {
     Map<String, dynamic> res = await put_request(
-        url: "http://localhost/request/api/cancel/" +
+        url: "http://143.42.55.127/request/api/cancel/" +
             widget.request.id.toString() +
             "/",
         body: {},

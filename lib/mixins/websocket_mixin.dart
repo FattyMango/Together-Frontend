@@ -23,18 +23,24 @@ mixin WebSocketMixin on AbstractHomePageState {
   late WebSocketChannel channel;
   @override
   void dispose() {
-    channel!=null?channel.sink.close():null;
+    close_conn();
     super.dispose();
   }
-  String get_ws_url(){
+  String get get_ws_url{
 
-    return "ws://localhost/ws/user/"+user.justID.toString()+"/";
+    return "ws://143.42.55.127/ws/user/"+user.justID.toString()+"/";
   }
-  
-  
+  switch_conn(String url,Map<String,dynamic>headers){
+    close_conn();
+    channel = IOWebSocketChannel.connect(Uri.parse(url),
+        headers: headers);
+  }
+  close_conn(){
+    channel!=null?channel.sink.close():null;
+  }
   init_conn() async {
 
-    channel = IOWebSocketChannel.connect(Uri.parse(get_ws_url()),
+    channel = IOWebSocketChannel.connect(Uri.parse(get_ws_url),
         headers: {"Authorization": "Token " + user.token});
 
   }

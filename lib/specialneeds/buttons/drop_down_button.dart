@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class HelpTypeDropDownButton extends StatefulWidget {
   final List<String> list;
-  const HelpTypeDropDownButton({super.key, required this.list});
+  final Function onChanged;
+  const HelpTypeDropDownButton({super.key, required this.list, required this.onChanged});
 
   @override
   State<HelpTypeDropDownButton> createState() => _DropDownButtonState();
@@ -15,7 +16,7 @@ class _DropDownButtonState extends State<HelpTypeDropDownButton> {
     dropdownValue =  widget.list.first;
     return Container(
       width: MediaQuery.of(context).size.width/3,
-      constraints: BoxConstraints(maxHeight: 35,minHeight: 20,maxWidth: 200,minWidth: 50),
+      constraints: BoxConstraints(maxHeight: 30,minHeight: 20,maxWidth: 200,minWidth: 50),
       alignment: Alignment.center,
       child: Theme(
   data: ThemeData(
@@ -33,12 +34,13 @@ class _DropDownButtonState extends State<HelpTypeDropDownButton> {
       ),
   ),
   child: DropdownButtonFormField<String>(
-
+      
       value: dropdownValue,
       onChanged: (String? newValue) {
         setState(() {
           dropdownValue = newValue;
         });
+        widget.onChanged(newValue);
       },
       items: widget.list.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(

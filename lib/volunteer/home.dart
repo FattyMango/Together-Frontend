@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:together/deserializers/request.dart';
 import 'package:together/mixins/user_fetch_mixin.dart';
+import 'package:together/pages/error_page.dart';
 import 'package:together/request/requests.dart';
 import 'package:together/volunteer/pages/home_container.dart';
 import 'package:together/volunteer/pages/incoming_request.dart';
@@ -47,8 +48,8 @@ class _VolunteerHomePageState extends AbstractHomePageState
 
   Future<UserDeserializer> get_user() async {
     UserDeserializer user = await init_user();
-    
-    is_online ? await init_conn():null;
+
+    is_online ? await init_conn() : close_conn();
     return user;
   }
 
@@ -72,36 +73,9 @@ class _VolunteerHomePageState extends AbstractHomePageState
         builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
           if (snapshot.hasData) {
             UserDeserializer user = snapshot.data![0];
-            if(!user.is_volunteer)
-            return ThemeContainer(
-            children: [
-              Center(
-                child: Container(
-                  child: Text("You are not a volunteer.",
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                          decoration: TextDecoration.none)),
-                ),
-              ),
-              Center(
-                child: GestureDetector(
-                    onTap: () {
-                      prefs..remove('user');
-                      Navigator.pushReplacementNamed(context, "/login");
-                    },
-                    child: Container(
-                      child: Text(
-                        "Please Login again.",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
-                            decoration: TextDecoration.none),
-                      ),
-                    )),
-              )
-            ],
-          );
+            if (!user.is_volunteer)
+              return show_error_page(
+                  context, prefs, "You are not a volunteer.");
             if (!is_online)
               return VolunteerHomeContainer(
                 user: user,

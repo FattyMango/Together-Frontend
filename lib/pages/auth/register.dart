@@ -70,7 +70,7 @@ class _RegisterPageState extends State<RegisterPage> {
         errorMessage = '';
       });
       var data = await post_request(
-        url: 'http://localhost/user/api/register/',
+        url: 'http://143.42.55.127/user/api/register/',
         body: {
           'justID': _justID,
           'password': _password,
