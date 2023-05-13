@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:together/deserializers/request.dart';
+import 'package:together/volunteer/pages/volunteer_request_page.dart';
 
 import '../../../deserializers/user.dart';
 import '../../../request/requests.dart';
 import 'request_button.dart';
 
 class AcceptRequestButton extends AbstractRequestButton {
-  
-   AcceptRequestButton({super.key, required super.user, required super.request,required super.set_accepted}):super();
+    
+   AcceptRequestButton({super.key, required super.user, required super.request,required super.set_accepted,required super.ErrorDialog}):super();
 
   @override
   _AcceptRequestButtonState createState() => _AcceptRequestButtonState();
@@ -23,9 +24,15 @@ class _AcceptRequestButtonState extends AbstractRequestButtonState{
         body: {},
         headers: {"Authorization": "Token " + widget.user.token});
         print(res);
-    if (res["response"] == "Error") widget.set_accepted(false);
-    else
+    if (res["response"] == "Error") {widget.set_accepted(false);
+    widget.ErrorDialog(res["message"]);
+    Future.delayed(Duration.zero, () {
+      Navigator.pushReplacementNamed(context, '/volunteer/home');
+    });
+    }
+    else{
     widget.set_accepted(true);
+        }
 
 
   }

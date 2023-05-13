@@ -21,7 +21,7 @@ import 'package:geolocator/geolocator.dart';
 
 import 'package:together/volunteer/home.dart';
 abstract class AbstractHomePage extends StatefulWidget {
-  final int x=0;
+
   const AbstractHomePage({super.key});
 }
 

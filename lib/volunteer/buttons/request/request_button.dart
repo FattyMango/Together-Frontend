@@ -4,12 +4,12 @@ import '../../../deserializers/request.dart';
 import '../../../deserializers/user.dart';
 
 abstract class AbstractRequestButton extends StatefulWidget {
-  final Function set_accepted;
+  final Function set_accepted,ErrorDialog;
 final UserDeserializer user;
   final RequestDeserializer request;
    AbstractRequestButton(
       {super.key,
-      required this.set_accepted, required this.user, required this.request});
+      required this.set_accepted, required this.user, required this.request, required this.ErrorDialog});
   
   
 }

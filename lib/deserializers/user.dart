@@ -3,7 +3,7 @@ import 'dart:convert';
 
 class UserDeserializer {
   late Map<String, dynamic> _data;
-  late String _email, _full_name, _gender, _token;
+  late String _email, _full_name, _gender, _token,_phone_number;
   late int _justID;
   late bool _is_active,
       _is_admin,
@@ -27,6 +27,7 @@ class UserDeserializer {
   }
 
   void deserialize() {
+    _phone_number = _data['phone_number'];
     _email = _data['email'];
     _full_name = _data['full_name'];
     _gender = _data['gender'];
@@ -48,7 +49,9 @@ class UserDeserializer {
   String get full_name {
     return _full_name;
   }
-
+  String get phone_number {
+    return _phone_number;
+  }
   String get email {
     return _email;
   }

@@ -22,11 +22,14 @@ import 'package:geolocator/geolocator.dart';
 mixin LocationPeriodicMixin on AbstractHomePageState {
   late Timer _timer;
   bool _waitingForResponse = false;
+  int _count = 0;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this); // Adding an observer
-    setTimer(false); // Setting a timer on init
+    setTimer(true);
+
+     // Setting a timer on init
   }
 
   @override
@@ -43,25 +46,40 @@ mixin LocationPeriodicMixin on AbstractHomePageState {
   }
 
   void setTimer(bool isBackground) {
-    int delaySeconds = isBackground ? 60 : 120;
+    int delaySeconds = isBackground ? 30 : 60;
 
     // Cancelling previous timer, if there was one, and creating a new one
 
     _timer = Timer.periodic(Duration(seconds: delaySeconds), (t) async {
       // Not sending a request, if waiting for response
-      if (!_waitingForResponse) {
+        if (!_waitingForResponse) {
+        if (_count == 5) {
+          Map<String, dynamic> res = await put_request(
+              url: "http://143.42.55.127/user/api/volunteer/setonline/",
+              body: {"is_online": is_online.toString()},
+              headers: {"Authorization": "Token " + user.token});
+              print(res);
+          if (res["response"] != "Error") ;
+          setState(() {
+            is_online = res["is_online"];
+          });
+          _count = 0;
+        }
         _waitingForResponse = true;
         await update_location();
         _waitingForResponse = false;
+        _count++;
       }
     });
   }
 
   update_location() async {
-    if (is_online)
-      await get_request(
+    if (is_online) {
+      var res = await get_request(
           url:
-              "http://143.42.55.127/location/update/volunteer/32.494685/35.986186/",
+              "http://143.42.55.127/location/update/volunteer/31.9743183/35.958238/",
           headers: {"Authorization": "Token " + this.user.token});
+      print(res);
+    }
   }
 }

@@ -10,7 +10,8 @@ class DeclineRequestButton extends AbstractRequestButton {
       {super.key,
       required super.user,
       required super.request,
-      required super.set_accepted})
+      required super.set_accepted,
+      required super.ErrorDialog})
       : super();
 
   @override
@@ -25,9 +26,8 @@ class _DeclineRequestButtonState extends AbstractRequestButtonState {
             "/",
         body: {},
         headers: {"Authorization": "Token " + widget.user.token});
-    if (res["response"] == "Error") widget.set_accepted(false);
+    if (res["response"] == "Error") widget.ErrorDialog(res["message"]);
 
-    widget.set_accepted(true);
     Future.delayed(Duration.zero, () {
       Navigator.pushReplacementNamed(context, '/volunteer/home');
     });

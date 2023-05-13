@@ -18,8 +18,13 @@ class SendRequestPage extends StatefulWidget {
   final Function submit_request;
   final UserDeserializer user;
   final Position pos;
-  SendRequestPage(
-      {super.key, required this.submit_request, required this.user, required this.pos, });
+
+  SendRequestPage({
+    super.key,
+    required this.submit_request,
+    required this.user,
+    required this.pos,
+  });
 
   @override
   State<SendRequestPage> createState() => _SendRequestPageState();
@@ -28,16 +33,58 @@ class SendRequestPage extends StatefulWidget {
 class _SendRequestPageState extends State<SendRequestPage> {
   bool gender_constraint = false;
   late ValueNotifier<latLng.LatLng> pos;
-  late String? special_request;
-  late String help_type;
-  var help_type_list = ["M","V","E"];
+
+  late String help_type, square, building,description;
+  var help_type_list = ["M", "V", "E"];
+  var square_list = ["A", "G", "C", "M", "N", "D", "PH", "CH"];
+  var building_list = ["", "1", "2", "3", "4"];
+  final myController = TextEditingController();
   @override
-void initState()  {
+  void initState() {
+    print(widget.pos.latitude);
+    print(widget.pos.longitude);
     pos = new ValueNotifier<latLng.LatLng>(
         new latLng.LatLng(widget.pos.latitude, widget.pos.longitude));
-        help_type = help_type_list.first;
+    help_type = help_type_list.first;
+    square = square_list.first;
+    building = building_list.first;
+    description = "no data";
     super.initState();
   }
+
+  Widget get LocationField => Padding(
+        padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
+        child: Wrap(
+          alignment: WrapAlignment.spaceEvenly,
+          children: [
+            Text("i'm in",
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                    decoration: TextDecoration.none)),
+            SizedBox(
+              width: 15,
+            ),
+            ListDropDownButton(
+                list: square_list,
+                onChanged: (String value) {
+                  setState(() {
+                    square = value;
+                  });
+                }),
+            SizedBox(
+              width: 5,
+            ),
+            ListDropDownButton(
+                list: building_list,
+                onChanged: (String value) {
+                  setState(() {
+                    building = value;
+                  });
+                }),
+          ],
+        ),
+      );
 
   Widget get HelpTypeField => Padding(
         padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
@@ -52,7 +99,7 @@ void initState()  {
             SizedBox(
               width: 15,
             ),
-            HelpTypeDropDownButton(
+            ListDropDownButton(
                 list: help_type_list,
                 onChanged: (String value) {
                   setState(() {
@@ -89,16 +136,16 @@ void initState()  {
         ),
       );
 
-  Widget SpecialRequestField = Padding(
+  Widget DescriptionField = Padding(
     padding: const EdgeInsets.all(20),
     child: SizedBox(
       height: 60,
-      child: TextField(
+      child: TextFormField(
         maxLines: null,
         expands: true,
         keyboardType: TextInputType.multiline,
         decoration:
-            InputDecoration(filled: true, hintText: 'I have a special request'),
+            InputDecoration(filled: true, hintText: 'I have a special request',),
       ),
     ),
   );
@@ -131,11 +178,10 @@ void initState()  {
                       point: pos.value,
                       width: 10,
                       height: 10,
-                      builder: (context) => Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.red),
-                      ),
+                      builder: (context) => Icon(
+                Icons.person_pin_circle,
+                size: 30,
+              ),
                     ),
                   ],
                 ),
@@ -146,27 +192,53 @@ void initState()  {
       );
 
   Widget get SubmitButton => Center(
-    child: Container(
-      child: SendRequestButton(submit_request: () {
+        child: Container(
+          child: SendRequestButton(submit_request: () {
             return widget.submit_request(new Request(
-                gender: gender_constraint?widget.user.gender[0]:"N",
+                gender: gender_constraint ? widget.user.gender[0] : "N",
                 latlong: pos.value,
                 help_type: help_type[0],
-                ),true
-                );
+                building: building,
+                description: description,
+                square: square));
           }),
-    ),
-  );
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
-
     return ThemeContainer(children: [
       Column(
         mainAxisAlignment: MainAxisAlignment.start,
         verticalDirection: VerticalDirection.down,
-         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [HelpTypeField, GenderField, SpecialRequestField, MapWidget, SubmitButton],
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          HelpTypeField,
+          LocationField,
+          GenderField,
+          Padding(
+    padding: const EdgeInsets.all(20),
+    child: SizedBox(
+      height: 60,
+      child: TextFormField(
+        onChanged: (value) {
+          setState(() {
+            description=value;
+          });
+          
+            print(value);
+        },
+        maxLines: null,
+        expands: true,
+        keyboardType: TextInputType.multiline,
+        decoration:
+            InputDecoration(filled: true, hintText: 'describe your need...',),
+      ),
+    ),
+  ),
+          MapWidget,
+          SubmitButton
+        ],
       ),
     ]);
     ;

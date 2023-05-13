@@ -49,7 +49,7 @@ class _VolunteerHomePageState extends AbstractHomePageState
   Future<UserDeserializer> get_user() async {
     UserDeserializer user = await init_user();
 
-    is_online ? await init_conn() : close_conn();
+    user.is_online ? await init_conn() : null;
     return user;
   }
 
@@ -114,7 +114,7 @@ class _VolunteerHomePageState extends AbstractHomePageState
               Center(
                 child: GestureDetector(
                     onTap: () {
-                      prefs..remove('user');
+                      prefs.remove('user');
                       Navigator.pushReplacementNamed(context, "/login");
                     },
                     child: Container(
@@ -133,12 +133,16 @@ class _VolunteerHomePageState extends AbstractHomePageState
   }
 
   navigate_request(data) {
+    print("here");
+    print(data);
+    try{
     RequestDeserializer request =
-        RequestDeserializer(json.decode(data)["data"]);
-    channel.sink.close();
+        new RequestDeserializer(json.decode(data)["data"]);
+    // channel.sink.close();
     return IncomingRequestPage(
       request: request,
       user: user,
-    );
+    );}
+    catch(e){}
   }
 }

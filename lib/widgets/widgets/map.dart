@@ -28,10 +28,10 @@ class MapWidget extends StatelessWidget {
               point: request.latlong,
               width: 10,
               height: 10,
-              builder: (context) => Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10), color: Colors.red),
-              ),
+              builder: (context) =>Icon(
+                      Icons.person_pin_circle,
+                      size: 30,
+                    ),
             ),
           ],
         ),
