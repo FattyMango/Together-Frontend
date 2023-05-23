@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:together/deserializers/request.dart';
-import 'package:together/volunteer/pages/volunteer_request_page.dart';
+import 'package:together/volunteer/pages/volunteer_request_accepted_page.dart';
 
 import '../../../deserializers/user.dart';
 import '../../../request/requests.dart';
@@ -23,15 +23,26 @@ class _AcceptRequestButtonState extends AbstractRequestButtonState{
         url: "http://143.42.55.127/request/api/accept/" + widget.request.id.toString() + "/",
         body: {},
         headers: {"Authorization": "Token " + widget.user.token});
-        print(res);
-    if (res["response"] == "Error") {widget.set_accepted(false);
-    widget.ErrorDialog(res["message"]);
+    print(res);
+    if (res["response"] == "Error") {
+      // widget.set_accepted(false);
+    // widget.ErrorDialog(res["message"]);
     Future.delayed(Duration.zero, () {
       Navigator.pushReplacementNamed(context, '/volunteer/home');
     });
     }
     else{
     widget.set_accepted(true);
+         Future.delayed(Duration.zero, () {
+        Navigator.of(context).pushReplacement(
+          new MaterialPageRoute(
+              settings: const RouteSettings(name: '/request_accepted'),
+              builder: (context) => VolunteerRequestAcceptedPage(
+                    request: widget.request,
+                    user: widget.user,
+                  )),
+        );
+      });
         }
 
 
@@ -51,7 +62,7 @@ class _AcceptRequestButtonState extends AbstractRequestButtonState{
   
   @override
   String get_text() {
-    return "Accept request";
+    return "Accept";
   }
   
   @override

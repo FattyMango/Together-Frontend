@@ -12,7 +12,7 @@ import 'package:together/mixins/user_fetch_mixin.dart';
 import 'package:together/mixins/websocket_mixin.dart';
 import 'package:together/specialneeds/buttons/send_request.dart';
 import 'package:together/specialneeds/classes/request.dart';
-import 'package:together/specialneeds/pages/request_accepted_page.dart';
+import 'package:together/specialneeds/pages/specialneeds_request_accepted_page.dart';
 import 'package:together/specialneeds/pages/send_request_page.dart';
 import 'package:together/pages/theme_container.dart';
 import 'package:latlong2/latlong.dart' as latLng;
@@ -30,35 +30,51 @@ class SpecialNeedsHomePage extends AbstractHomePage {
 
 class SpecialNeedsHomePageState extends AbstractHomePageState
     with WebSocketMixin, UserFtecherMixin, LocationFetcherMixin {
-  late bool gender_constraint,
-      is_request_sent,
-      is_request_accepted,
-      is_dialog_opened;
   late ValueNotifier<latLng.LatLng> pos;
-  late String? special_request;
-  late String help_type;
   late Request request;
   late RequestDeserializer CurrentRequest;
   late UserDeserializer volunteer;
   late latLng.LatLng volunteer_location;
-  String? request_websocket_url;
+
   @override
   void initState() {
-    gender_constraint = false;
-    is_request_sent = false;
-    is_request_accepted = false;
-    is_dialog_opened = false;
     pos = ValueNotifier<latLng.LatLng>(new latLng.LatLng(31.988926, 35.946191));
     super.initState();
   }
 
   @override
+  cantFetchLocation() {
+    LocationErrorDialog();
+  }
+
+  LocationErrorDialog() => showDialog(
+        builder: (BuildContext context) => AlertDialog(
+          title: Text('error'),
+          content: Text("Please enable the location service."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('OK'),
+            ),
+          ],
+        ),
+        context: context,
+      );
+  @override
+  Map<String, dynamic> get ws_headers {
+    return {"Authorization": "Token " + user.token};
+  }
+
+  @override
   String get get_ws_url =>
-      !is_request_sent ? super.get_ws_url : request_websocket_url!;
+      "ws://143.42.55.127/ws/user/${user.justID.toString()}/";
 
   @override
   void dispose() {
     pos.dispose();
+    close_conn();
     super.dispose();
   }
 
@@ -68,28 +84,10 @@ class SpecialNeedsHomePageState extends AbstractHomePageState
     return user;
   }
 
-  get_current_state(snapshot) {
-    if (is_request_sent) {
-      if (is_request_accepted)
-        return RequestAcceptedPage(
-          request: request,
-          volunteer: volunteer,
-          volunteer_location: volunteer_location,
-          cancel_request: request.finish_request,
-          request_id: CurrentRequest.id,
-          user_token: user.token,
-        );
-      else
-        return WaitingForVolunteerPage();
-    } else {
-      return snapshot.data![1] != null
-          ? SendRequestPage(
-              user: user,
-              submit_request: submit,
-              pos: snapshot.data![1],
-            )
-          : Container();
-    }
+  setCanFetchLocation(value) {
+    setState(() {
+      canFetchLocation = value;
+    });
   }
 
   @override
@@ -109,10 +107,14 @@ class SpecialNeedsHomePageState extends AbstractHomePageState
                   if (wsData.hasData) {
                     handle_ws_message(wsData.requireData);
                   }
-                  return get_current_state(snapshot);
+                  return SendRequestPage(
+                    user: user,
+                    submit_request: submit,
+                    pos: snapshot.data![1],
+                  );
                 });
           }
-          return ThemeContainer(children: [
+          return ThemeContainer(isDrawer: true, children: [
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -164,74 +166,39 @@ class SpecialNeedsHomePageState extends AbstractHomePageState
         ),
       );
 
-  dynamic get CouldntFindVolunteerDialog => showDialog(
-        builder: (BuildContext context) => AlertDialog(
-          title: Text('error'),
-          content:
-              Text("We couldn't find a volunteer for you, please try again."),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                is_dialog_opened = false;
-                is_request_sent = false;
-                is_request_accepted = false;
-
-                Navigator.pushReplacementNamed(context, '/specialneeds/home');
-              },
-              child: Text('OK'),
-            ),
-          ],
-        ),
-        context: context,
-      );
-
   submit(Request request) async {
-    print("called");
-
     RequestDeserializer? r = await request.send_request(user.token);
     if (r == null) return CantCreateRequestDialog;
 
-    close_conn();
+    // close_conn();
+    Navigator.of(context).pushReplacement(
+      new MaterialPageRoute(
+          settings: const RouteSettings(name: '/specialneed/request/waiting'),
+          builder: (context) => WaitingForVolunteerPage(
+                request: r,
+                user: user,
+              )),
+    );
     setState(() {
       this.request = request;
-      this.is_request_sent = true;
       CurrentRequest = r;
-      request_websocket_url = r.request_websocket;
     });
     // init_conn();
-    print(r.latlong);
   }
-
 
   handle_ws_message(data) async {
     print(data);
     var response = json.decode(data)["data"];
     if (response["response"] == "Error") {
-      print("here");
       close_conn();
 
-      is_request_sent = false;
-      is_request_accepted = false;
-      request_websocket_url = null;
       await request.finish_request(user.token, CurrentRequest.id);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!is_dialog_opened) CouldntFindVolunteerDialog;
-      });
-      return;
-    } else if (response["response"] == "cancel") {
-      is_request_accepted = false;
-      is_request_sent = true;
-      request_websocket_url = null;
 
-      print("canceld");
       return;
     } else if (response["response"] == "finish") {
-            is_request_accepted = false;
-      is_request_sent = false;
-      
     } else if (response["response"] == "accept") {
       this.volunteer = UserDeserializer(response["volunteer"]);
-      is_request_accepted = true;
+
       try {
         this.volunteer_location = latLng.LatLng(
             double.parse(response["location"]["latitude"]),

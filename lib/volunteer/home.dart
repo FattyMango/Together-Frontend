@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,7 @@ import 'package:together/deserializers/request.dart';
 import 'package:together/mixins/user_fetch_mixin.dart';
 import 'package:together/pages/error_page.dart';
 import 'package:together/request/requests.dart';
-import 'package:together/volunteer/pages/home_container.dart';
+import 'package:together/volunteer/pages/home_page.dart';
 import 'package:together/volunteer/pages/incoming_request.dart';
 import 'package:together/volunteer/buttons/set_online/setonline_button.dart';
 import 'package:together/pages/theme_container.dart';
@@ -22,12 +23,13 @@ import 'package:geolocator/geolocator.dart';
 
 import '../abstracts/abstract_state.dart';
 import '../mixins/location_mixin.dart';
-import 'mixins/location_periodic_mixin.dart';
+import '../mixins/periodic_mixin.dart';
 import '../mixins/websocket_mixin.dart';
+import '../singeltons/user_websocket_singelton.dart';
 
 class VolunteerHomePage extends AbstractHomePage {
   bool is_online = false;
-  VolunteerHomePage({super.key}) {}
+  VolunteerHomePage({super.key});
 
   @override
   AbstractHomePageState createState() {
@@ -36,35 +38,116 @@ class VolunteerHomePage extends AbstractHomePage {
 }
 
 class _VolunteerHomePageState extends AbstractHomePageState
-    with
-        LocationPeriodicMixin,
-        LocationFetcherMixin,
-        WebSocketMixin,
-        UserFtecherMixin {
+    with PeriodicMixin, LocationFetcherMixin, UserFtecherMixin,WebSocketMixin {
+  bool request_recieved = false;
+  String latest_data = "";
+   
   @override
-  void dispose() {
-    super.dispose();
+  void initState() {
+    // TODO: implement initState
+
+    super.initState();
+
+    get_user();
   }
 
-  Future<UserDeserializer> get_user() async {
-    UserDeserializer user = await init_user();
+  // @override
+  // void dispose() {
+  //   disposeTimer();
+    
+  //   close_conn();
+  //   print("disposed");
+  //   super.dispose();
+  // }
 
-    user.is_online ? await init_conn() : null;
+  @override
+  Map<String, dynamic> get ws_headers =>
+      {"Authorization": "Token " + user.token};
+
+  @override
+  String get get_ws_url =>
+      "ws://143.42.55.127/ws/user/${user.justID.toString()}/";
+
+  Future<UserDeserializer> get_user() async {
+    user = await init_user();
+       init_conn();
     return user;
+  }
+
+  update_online() async {
+    Map<String, dynamic> res = await put_request(
+        url: "http://143.42.55.127/user/api/volunteer/setonline/",
+        body: {"is_online": is_online.toString()},
+        headers: {"Authorization": "Token " + user.token});
+
+    if (res["response"] != "Error")
+      setState(() {
+        is_online = false;
+      });
+    else
+      set_online(res);
+  }
+
+  @override
+  periodic_function() async {
+    if (!waitingForResponse) {
+      if (count == 5) {
+        await update_online();
+        count = 0;
+      }
+      waitingForResponse = true;
+      await update_location();
+      waitingForResponse = false;
+      count++;
+    }
+  }
+
+  update_location() async {
+    if (is_online) {
+      Position pos = await determinePosition();
+      var res = await get_request(
+          url:
+              "http://143.42.55.127/location/update/volunteer/${pos.latitude}/${pos.longitude}/",
+          headers: {"Authorization": "Token " + this.user.token});
+    }
+  }
+
+  @override
+  cantFetchLocation() {
+    setState(() {
+      is_online = false;
+    });
+    update_online();
+    LocationErrorDialog();
   }
 
   set_online(res) async {
     await prefs.setString('user', json.encode(res));
-    setState(() {
-      is_online = res["is_online"];
-      if (!is_online) {
-        channel.sink.close();
-      } else {
-        init_conn();
-        update_location();
-      }
-    });
+    if (is_online != res["is_online"])
+      setState(() {
+        is_online = res["is_online"];
+      });
+    if (is_online) {
+      update_location();
+    }
   }
+
+  LocationErrorDialog() => showDialog(
+        builder: (BuildContext context) => AlertDialog(
+          title: Text('error'),
+          content: Text("Please enable the location service."),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('OK'),
+            ),
+          ],
+        ),
+        context: context,
+      );
+
 
   @override
   Widget build(BuildContext context) {
@@ -76,28 +159,19 @@ class _VolunteerHomePageState extends AbstractHomePageState
             if (!user.is_volunteer)
               return show_error_page(
                   context, prefs, "You are not a volunteer.");
-            if (!is_online)
-              return VolunteerHomeContainer(
-                user: user,
-                set_online: set_online,
-                is_validated: is_validated,
-                is_online: false,
-              );
-            else
-              return StreamBuilder(
-                  stream: channel.stream,
-                  builder: (context, wsData) {
-                    if (wsData.hasData) {
-                      return navigate_request(wsData.data);
-                    }
+                  if(channel != null)
+             return StreamBuilder(
+                stream: channel!.stream,
+                builder: (context, wsData) {
+                  if (wsData.hasData) navigate_request(wsData.data);
 
-                    return VolunteerHomeContainer(
-                      user: user,
-                      set_online: set_online,
-                      is_validated: is_validated,
-                      is_online: true,
-                    );
-                  });
+                  return VolunteerHomeContainer(
+                    user: user,
+                    set_online: set_online,
+                    is_validated: is_validated,
+                    is_online: is_online,
+                  );
+                });
           }
 
           return ThemeContainer(
@@ -133,16 +207,32 @@ class _VolunteerHomePageState extends AbstractHomePageState
   }
 
   navigate_request(data) {
-    print("here");
+    if (latest_data == data) {print("same data!");return;}
+    latest_data = data;
     print(data);
-    try{
-    RequestDeserializer request =
-        new RequestDeserializer(json.decode(data)["data"]);
-    // channel.sink.close();
-    return IncomingRequestPage(
-      request: request,
-      user: user,
-    );}
-    catch(e){}
+    try {
+      RequestDeserializer request =
+          new RequestDeserializer(json.decode(data)["data"]);
+
+      if (!request_recieved) {
+        request_recieved = true;
+        disposeTimer();
+    
+    close_conn();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context).pushReplacement(
+            new MaterialPageRoute(
+                settings: const RouteSettings(
+                    name: '/volunteer/request/incoming_request'),
+                builder: (context) => IncomingRequestPage(
+                      request: request,
+                      user: user,
+                    )),
+          );
+
+          return;
+        });
+      }
+    } catch (e) {}
   }
 }

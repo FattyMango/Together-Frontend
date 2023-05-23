@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:together/mixins/prefs_mixin.dart';
 import 'package:together/pages/auth/login.dart';
 import 'package:together/request/requests.dart';
 
@@ -13,7 +14,7 @@ class RegisterPage extends StatefulWidget {
   _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _RegisterPageState extends State<RegisterPage> with PrefsMixin{
   final _formKey = GlobalKey<FormState>();
 
   late String _justID;
@@ -24,12 +25,13 @@ class _RegisterPageState extends State<RegisterPage> {
   String? errorMessage;
   void initState() {
     check_user();
+    super.initState();
   }
 
   Future<void> check_user() async {
-    super.initState();
-    final prefs = await SharedPreferences.getInstance();
-    prefs.remove('user');
+    
+    await set_prefs();
+
     final String userJson = await prefs.getString('user') ?? '';
     if (userJson != '') {
       UserDeserializer user = new UserDeserializer(userJson);
@@ -86,7 +88,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
 
       if (data['response'] != "Error") {
-        final prefs = await SharedPreferences.getInstance();
+        
         await prefs.setString('user', json.encode(data));
 
         Navigator.of(context).pushReplacement(

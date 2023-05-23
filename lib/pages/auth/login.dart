@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:together/deserializers/user.dart';
+import 'package:together/mixins/prefs_mixin.dart';
 
 import '../../request/requests.dart';
 
@@ -13,21 +14,24 @@ class LoginPage extends StatefulWidget {
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with PrefsMixin {
   final _formKey = GlobalKey<FormState>();
 
   late int _justID;
   late String _password;
-
+  
   bool _isLoading = false;
   void initState() {
-    check_user();
+
+   
+    super.initState();
+     check_user();
   }
 
   Future<void> check_user() async {
-    super.initState();
-    final prefs = await SharedPreferences.getInstance();
-    // prefs.remove('user');
+    
+    await set_prefs();
+    
     final String userJson = await prefs.getString('user') ?? '';
     if (userJson != '') {
       UserDeserializer user = new UserDeserializer(userJson);

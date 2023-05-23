@@ -5,7 +5,7 @@ Future<Map<String, dynamic>> put_request({required String url,required Map<Strin
 
       final response = await http.put(
         Uri.parse(url),
-        body:body??{},
+        body:body,
         headers: headers??{}
       );
 
@@ -15,7 +15,7 @@ Future<Map<String, dynamic>> post_request({required String url,required Map<Stri
 
       final response = await http.post(
         Uri.parse(url),
-        body:body??{},
+        body:body,
         headers: headers??{}
       );
 

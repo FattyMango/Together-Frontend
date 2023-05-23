@@ -34,15 +34,13 @@ class _SendRequestPageState extends State<SendRequestPage> {
   bool gender_constraint = false;
   late ValueNotifier<latLng.LatLng> pos;
 
-  late String help_type, square, building,description;
+  late String help_type, square, building, description;
   var help_type_list = ["M", "V", "E"];
   var square_list = ["A", "G", "C", "M", "N", "D", "PH", "CH"];
   var building_list = ["", "1", "2", "3", "4"];
   final myController = TextEditingController();
   @override
   void initState() {
-    print(widget.pos.latitude);
-    print(widget.pos.longitude);
     pos = new ValueNotifier<latLng.LatLng>(
         new latLng.LatLng(widget.pos.latitude, widget.pos.longitude));
     help_type = help_type_list.first;
@@ -50,6 +48,12 @@ class _SendRequestPageState extends State<SendRequestPage> {
     building = building_list.first;
     description = "no data";
     super.initState();
+  }
+
+  @override
+  void dispose(){
+    pos.dispose();
+    super.dispose();
   }
 
   Widget get LocationField => Padding(
@@ -144,8 +148,10 @@ class _SendRequestPageState extends State<SendRequestPage> {
         maxLines: null,
         expands: true,
         keyboardType: TextInputType.multiline,
-        decoration:
-            InputDecoration(filled: true, hintText: 'I have a special request',),
+        decoration: InputDecoration(
+          filled: true,
+          hintText: 'I have a special request',
+        ),
       ),
     ),
   );
@@ -179,9 +185,9 @@ class _SendRequestPageState extends State<SendRequestPage> {
                       width: 10,
                       height: 10,
                       builder: (context) => Icon(
-                Icons.person_pin_circle,
-                size: 30,
-              ),
+                        Icons.person_pin_circle,
+                        size: 30,
+                      ),
                     ),
                   ],
                 ),
@@ -207,40 +213,42 @@ class _SendRequestPageState extends State<SendRequestPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ThemeContainer(children: [
-      Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        verticalDirection: VerticalDirection.down,
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return ThemeContainer(
+        isDrawer: true,
         children: [
-          HelpTypeField,
-          LocationField,
-          GenderField,
-          Padding(
-    padding: const EdgeInsets.all(20),
-    child: SizedBox(
-      height: 60,
-      child: TextFormField(
-        onChanged: (value) {
-          setState(() {
-            description=value;
-          });
-          
-            print(value);
-        },
-        maxLines: null,
-        expands: true,
-        keyboardType: TextInputType.multiline,
-        decoration:
-            InputDecoration(filled: true, hintText: 'describe your need...',),
-      ),
-    ),
-  ),
-          MapWidget,
-          SubmitButton
-        ],
-      ),
-    ]);
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            verticalDirection: VerticalDirection.down,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              HelpTypeField,
+              LocationField,
+              GenderField,
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: SizedBox(
+                  height: 60,
+                  child: TextFormField(
+                    onChanged: (value) {
+                      setState(() {
+                        description = value;
+                      });
+                    },
+                    maxLines: null,
+                    expands: true,
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(
+                      filled: true,
+                      hintText: 'describe your need...',
+                    ),
+                  ),
+                ),
+              ),
+              MapWidget,
+              SubmitButton
+            ],
+          ),
+        ]);
     ;
   }
 }

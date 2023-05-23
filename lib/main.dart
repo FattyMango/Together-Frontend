@@ -5,11 +5,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:together/pages/auth/login.dart';
 import 'package:together/deserializers/user.dart';
+import 'package:together/pages/loading.dart';
 import 'package:together/specialneeds/home.dart';
 import 'package:together/volunteer/pages/alt.dart';
 import 'package:together/volunteer/home.dart';
 import 'package:together/volunteer/pages/incoming_request.dart';
-import 'package:together/volunteer/pages/volunteer_request_page.dart';
+import 'package:together/volunteer/pages/volunteer_request_accepted_page.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -47,6 +48,6 @@ class MyHomePage extends StatefulWidget {
 class MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return LoginPage();
+    return LoadingPage();
   }
 }

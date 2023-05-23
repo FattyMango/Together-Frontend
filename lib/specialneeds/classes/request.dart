@@ -32,7 +32,7 @@ class Request {
           "Authorization": "Token ${token}"
         });
     if (response["response"] == "Error") return null;
-    print(response);
+   
     return RequestDeserializer(json.encode(response));
   }
 
@@ -42,7 +42,13 @@ class Request {
         url: "http://143.42.55.127/request/api/finish/${id.toString()}/",
         headers: {"Authorization": "Token ${token}"}, body: {});
     if (response["response"] == "Error") return false;
-    print(response);
+    
     return true;
   }
+}
+
+Request convert_to_Request(RequestDeserializer request){
+return Request(gender: request.gender, latlong: request.latlong, description: request.description??"", help_type: request.help_type, square: request.square??"", building: request.building??"");
+
+
 }

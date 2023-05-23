@@ -5,7 +5,7 @@ import 'package:together/deserializers/user.dart';
 import 'package:together/volunteer/buttons/request/accept_request.dart';
 import 'package:together/volunteer/buttons/request/decline_request.dart';
 import 'package:together/pages/theme_container.dart';
-import 'package:together/volunteer/pages/volunteer_request_page.dart';
+import 'package:together/volunteer/pages/volunteer_request_accepted_page.dart';
 import 'package:together/widgets/widgets/map.dart';
 
 class IncomingRequestPage extends StatefulWidget {
@@ -21,20 +21,23 @@ class IncomingRequestPage extends StatefulWidget {
 class _IncomingRequestPageState extends State<IncomingRequestPage> {
   bool _is_accepted = false;
   set_accepted(is_accepted) {
-    if (is_accepted)
-      Future.delayed(Duration.zero, () {
-        Navigator.of(context).pushReplacement(
-          new MaterialPageRoute(
-              settings: const RouteSettings(name: '/login'),
-              builder: (context) => VolunteerRequestPage(
-                    request: widget.request,
-                    user: widget.user,
-                  )),
-        );
-      });
-    setState(() {
-      _is_accepted = is_accepted;
-    });
+    // if (is_accepted)
+      // Future.delayed(Duration.zero, () {
+      //   Navigator.of(context).pushReplacement(
+      //     new MaterialPageRoute(
+      //         settings: const RouteSettings(name: '/request_accepted'),
+      //         builder: (context) => VolunteerRequestAcceptedPage(
+      //               request: widget.request,
+      //               user: widget.user,
+      //             )),
+      //   );
+      // });
+    // else{
+    //   Future.delayed(Duration.zero, () {
+    //     Navigator.pushReplacementNamed(context, '/volunteer/home');
+    //   });
+    // }
+
   }
 
   ErrorDialog(String message) {

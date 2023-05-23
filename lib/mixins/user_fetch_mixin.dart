@@ -6,7 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:together/deserializers/request.dart';
 import 'package:together/request/requests.dart';
-import 'package:together/volunteer/pages/home_container.dart';
+import 'package:together/volunteer/pages/home_page.dart';
 import 'package:together/volunteer/pages/incoming_request.dart';
 import 'package:together/volunteer/buttons/set_online/setonline_button.dart';
 import 'package:together/pages/theme_container.dart';
@@ -41,8 +41,6 @@ mixin UserFtecherMixin on AbstractHomePageState {
       user = new UserDeserializer(json.encode(data));
       is_validated = user.is_validated;
     }
-
-    user = user;
     is_online = user.is_online;
 
     return user;

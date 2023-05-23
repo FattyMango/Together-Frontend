@@ -5,8 +5,8 @@ import '../../../deserializers/request.dart';
 import '../../../deserializers/user.dart';
 import '../../../request/requests.dart';
 
-class DeclineRequestButton extends AbstractRequestButton {
-  DeclineRequestButton(
+class CancelRequestButton extends AbstractRequestButton {
+  CancelRequestButton(
       {super.key,
       required super.user,
       required super.request,
@@ -15,18 +15,17 @@ class DeclineRequestButton extends AbstractRequestButton {
       : super();
 
   @override
-  AbstractRequestButtonState createState() => _DeclineRequestButtonState();
+  AbstractRequestButtonState createState() => _CancelRequestButtonState();
 }
 
-class _DeclineRequestButtonState extends AbstractRequestButtonState {
+class _CancelRequestButtonState extends AbstractRequestButtonState {
   decline_request() async {
-    print("here");
-    Map<String, dynamic> res = await get_request(
-        url: "http://143.42.55.127/request/api/decline/${widget.request.id.toString() }/" 
+    Map<String, dynamic> res = await put_request(
+        url: "http://143.42.55.127/request/api/cancel/${widget.request.id.toString() }/" 
             ,
 
-        headers: {"Authorization": "Token " + widget.user.token});
-    if (res["response"] == "Error") widget.ErrorDialog(res["message"]);
+        headers: {"Authorization": "Token " + widget.user.token}, body: {});
+    // if (res["response"] == "Error") widget.ErrorDialog(res["message"]);
 
     Future.delayed(Duration.zero, () {
       Navigator.pushReplacementNamed(context, '/volunteer/home');
@@ -49,7 +48,7 @@ class _DeclineRequestButtonState extends AbstractRequestButtonState {
 
   @override
   String get_text() {
-    return "Decline";
+    return "Cancel Request";
   }
 
   @override

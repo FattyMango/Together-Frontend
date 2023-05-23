@@ -1,25 +1,11 @@
-import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:together/deserializers/request.dart';
-import 'package:together/request/requests.dart';
-import 'package:together/volunteer/pages/home_container.dart';
-import 'package:together/volunteer/pages/incoming_request.dart';
-import 'package:together/volunteer/buttons/set_online/setonline_button.dart';
-import 'package:together/pages/theme_container.dart';
-import 'package:web_socket_channel/io.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:http/http.dart' as http;
-import '../deserializers/user.dart';
-import '../abstracts/abstract_state.dart';
-import 'package:latlong2/latlong.dart' as latLng;
-import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 
-mixin LocationFetcherMixin on AbstractHomePageState {
+mixin LocationFetcherMixin {
+  bool canFetchLocation =true;
+  cantFetchLocation();
+  
   Future<Position> determinePosition() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -30,6 +16,7 @@ mixin LocationFetcherMixin on AbstractHomePageState {
       // Location services are not enabled don't continue
       // accessing the position and request users of the
       // App to enable the location services.
+      cantFetchLocation();
       return Future.error('Location services are disabled.');
     }
 
@@ -42,6 +29,7 @@ mixin LocationFetcherMixin on AbstractHomePageState {
         // Android's shouldShowRequestPermissionRationale
         // returned true. According to Android guidelines
         // your App should show an explanatory UI now.
+        cantFetchLocation();
         return Future.error('Location permissions are denied');
       }
     }
@@ -56,7 +44,7 @@ mixin LocationFetcherMixin on AbstractHomePageState {
     // continue accessing the position of the device.
     return await Geolocator.getCurrentPosition();
   }
-
+ 
   // Async method returns Future<> object
 
 }
