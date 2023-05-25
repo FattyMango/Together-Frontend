@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:together/pages/auth/login.dart';
 import 'package:together/deserializers/user.dart';
 import 'package:together/pages/loading.dart';
+import 'package:together/singeltons/user_singelton.dart';
 import 'package:together/specialneeds/home.dart';
 import 'package:together/volunteer/pages/alt.dart';
 import 'package:together/volunteer/home.dart';
@@ -25,12 +26,12 @@ class MyApp extends StatelessWidget {
       home: MyHomePage(),
       routes: {
         '/volunteer/home': (context) => VolunteerHomePage(),
-
         '/specialneeds/home': (context) => SpecialNeedsHomePage(),
         '/register': (context) => RegisterPage(),
         '/login': (context) => LoginPage(
               message: "error eccourd",
             ),
+            '/loading': (context) => LoadingPage(),
       },
     );
   }

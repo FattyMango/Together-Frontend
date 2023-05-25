@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:together/deserializers/user.dart';
 import 'package:together/mixins/prefs_mixin.dart';
+import 'package:together/singeltons/user_singelton.dart';
 
 import '../../request/requests.dart';
 
@@ -35,11 +36,13 @@ class _LoginPageState extends State<LoginPage> with PrefsMixin {
     final String userJson = await prefs.getString('user') ?? '';
     if (userJson != '') {
       UserDeserializer user = new UserDeserializer(userJson);
+
       navigate_user(user);
     }
   }
 
   void navigate_user(UserDeserializer user) {
+
     if (user.is_volunteer)
       Navigator.pushReplacementNamed(context, '/volunteer/home');
     else if (user.is_specialNeeds)
@@ -47,7 +50,7 @@ class _LoginPageState extends State<LoginPage> with PrefsMixin {
     else
       setState(() {
         widget.message =
-            "You must be a valid volunteer or a special needs students to use this app.";
+            "You must be a volunteer or a special needs students to use this app.";
       });
   }
 
@@ -77,11 +80,10 @@ class _LoginPageState extends State<LoginPage> with PrefsMixin {
         String response = json.encode(data);
         await prefs.setString('user', response);
 
-// Login successful, navigate to the home page
 
         UserDeserializer user = new UserDeserializer(response);
-
-        navigate_user(user);
+          UserDeserializerSingleton.setInstance(user);
+        Navigator.pushReplacementNamed(context, '/loading');
       } else {
         // Registration failed, display an error message
         showDialog(

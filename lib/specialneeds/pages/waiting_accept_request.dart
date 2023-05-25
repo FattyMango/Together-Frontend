@@ -15,6 +15,7 @@ import '../../pages/theme_container.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../../request/requests.dart';
+import '../buttons/finish_request.dart';
 
 class WaitingForVolunteerPage extends StatefulWidget {
   final RequestDeserializer request;
@@ -28,8 +29,11 @@ class WaitingForVolunteerPage extends StatefulWidget {
 }
 
 class _WaitingForVolunteerPageState extends State<WaitingForVolunteerPage>
-    with WidgetsBindingObserver, WebSocketMixin, PeriodicMixin {
+    with WidgetsBindingObserver, WebSocketMixin {
   bool is_dialog_opened = false;
+  bool timerON = true;
+  
+  String latest_data = "";
   @override
   void initState() {
     // TODO: implement initState
@@ -44,17 +48,9 @@ class _WaitingForVolunteerPageState extends State<WaitingForVolunteerPage>
   // }
 
   @override
-  int get delaySeconds => 10;
+  int get delaySeconds => 60;
   @override
-  periodic_function() async {
-    if (!waitingForResponse) {
-      Request r = convert_to_Request(widget.request);
-      await r.finish_request(widget.user.token, widget.request.id);
-      CouldntFindVolunteerDialog;
-      waitingForResponse = true;
-      disposeTimer();
-    }
-  }
+
 
   @override
   String get get_ws_url {
@@ -75,7 +71,7 @@ class _WaitingForVolunteerPageState extends State<WaitingForVolunteerPage>
             TextButton(
               onPressed: () async {
                 is_dialog_opened = false;
-                waitingForResponse = false;
+               
                 Navigator.pushReplacementNamed(context, '/specialneeds/home');
               },
               child: Text('OK'),
@@ -90,9 +86,12 @@ class _WaitingForVolunteerPageState extends State<WaitingForVolunteerPage>
     return StreamBuilder(
         stream: channel.stream,
         builder: (context, wsData) {
-          if (wsData.hasData) {
-            handle_ws_message(wsData.requireData);
-          }
+          if (wsData.hasData) 
+           if(latest_data !=wsData.data){
+                latest_data = wsData.data.toString();
+             handle_ws_message(wsData.requireData);}
+            
+          
           return ThemeContainer(
             children: [
               Column(
@@ -115,32 +114,42 @@ class _WaitingForVolunteerPageState extends State<WaitingForVolunteerPage>
                   SpinKitFadingCircle(
                     color: Colors.black,
                     size: 50.0,
-                  )
+                  ),
+               SizedBox(height:50),
+               CancelButton
                 ],
               ),
             ],
           );
         });
   }
+  Widget get CancelButton => FinishRequestButtom(submit_request: () async {
+        await convert_to_Request(widget.request)
+            .finish_request(widget.user.token, widget.request.id);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.pushReplacementNamed(context, '/specialneeds/home');
+        });
+      });
+   handle_ws_message(data) async {
+        print(2);
 
-  Future<void> handle_ws_message(data) async {
+    print(data);
     var response = json.decode(data)["data"];
     if (response["response"] == "Error") {
-      waitingForResponse = false;
-     
+      
+      timerON = false;
       Request r = convert_to_Request(widget.request);
+      
       await r.finish_request(widget.user.token, widget.request.id);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!is_dialog_opened) {
-          
           CouldntFindVolunteerDialog;
           is_dialog_opened = true;
-           disposeTimer();
-      
         }
       });
       return;
     } else if (response["response"] == "accept") {
+      timerON = false;
       UserDeserializer volunteer = UserDeserializer(response["volunteer"]);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushReplacement(

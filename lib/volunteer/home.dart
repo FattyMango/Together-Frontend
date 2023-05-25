@@ -24,41 +24,55 @@ import 'package:geolocator/geolocator.dart';
 import '../abstracts/abstract_state.dart';
 import '../mixins/location_mixin.dart';
 import '../mixins/periodic_mixin.dart';
+import '../mixins/prefs_mixin.dart';
 import '../mixins/websocket_mixin.dart';
-import '../singeltons/user_websocket_singelton.dart';
+import '../singeltons/user_singelton.dart';
 
-class VolunteerHomePage extends AbstractHomePage {
-  bool is_online = false;
+class VolunteerHomePage extends StatefulWidget {
   VolunteerHomePage({super.key});
 
   @override
-  AbstractHomePageState createState() {
+  State<VolunteerHomePage> createState() {
     return _VolunteerHomePageState();
   }
 }
 
-class _VolunteerHomePageState extends AbstractHomePageState
-    with PeriodicMixin, LocationFetcherMixin, UserFtecherMixin,WebSocketMixin {
+class _VolunteerHomePageState extends State<VolunteerHomePage>
+    with
+        WidgetsBindingObserver,
+        PeriodicMixin,
+        LocationFetcherMixin,
+        WebSocketMixin,
+        PrefsMixin {
   bool request_recieved = false;
   String latest_data = "";
-   
+  late bool is_validated, is_online;
+  late UserDeserializer user;
   @override
   void initState() {
     // TODO: implement initState
-
-    super.initState();
-
-    get_user();
-  }
-
-  // @override
-  // void dispose() {
-  //   disposeTimer();
     
-  //   close_conn();
-  //   print("disposed");
-  //   super.dispose();
-  // }
+    handle_user_changes(UserDeserializerSingleton.instance);
+    set_prefs();
+    super.initState();
+    initTimer();
+    init_conn();
+  }
+  handle_user_changes(UserDeserializer user){
+    is_validated = user.is_validated;
+    
+    is_online = is_validated?user.is_online:false;
+    this.user = user;
+    UserDeserializerSingleton.setInstance(user);
+  }
+  @override
+  void dispose() {
+    disposeTimer();
+
+    close_conn();
+    print("disposed");
+    super.dispose();
+  }
 
   @override
   Map<String, dynamic> get ws_headers =>
@@ -68,19 +82,13 @@ class _VolunteerHomePageState extends AbstractHomePageState
   String get get_ws_url =>
       "ws://143.42.55.127/ws/user/${user.justID.toString()}/";
 
-  Future<UserDeserializer> get_user() async {
-    user = await init_user();
-       init_conn();
-    return user;
-  }
-
   update_online() async {
     Map<String, dynamic> res = await put_request(
         url: "http://143.42.55.127/user/api/volunteer/setonline/",
         body: {"is_online": is_online.toString()},
         headers: {"Authorization": "Token " + user.token});
 
-    if (res["response"] != "Error")
+    if (res["response"] == "Error")
       setState(() {
         is_online = false;
       });
@@ -123,9 +131,11 @@ class _VolunteerHomePageState extends AbstractHomePageState
 
   set_online(res) async {
     await prefs.setString('user', json.encode(res));
+    
+    UserDeserializer u = new UserDeserializer(json.encode(res));
     if (is_online != res["is_online"])
       setState(() {
-        is_online = res["is_online"];
+       handle_user_changes(u);
       });
     if (is_online) {
       update_location();
@@ -148,66 +158,60 @@ class _VolunteerHomePageState extends AbstractHomePageState
         context: context,
       );
 
-
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: Future.wait([get_user()]),
-        builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-          if (snapshot.hasData) {
-            UserDeserializer user = snapshot.data![0];
-            if (!user.is_volunteer)
-              return show_error_page(
-                  context, prefs, "You are not a volunteer.");
-                  if(channel != null)
-             return StreamBuilder(
-                stream: channel!.stream,
-                builder: (context, wsData) {
-                  if (wsData.hasData) navigate_request(wsData.data);
+    if (!user.is_volunteer)
+      return show_error_page(context, prefs, "You are not a volunteer.");
+    if (channel != null)
+      return StreamBuilder(
+          stream: channel!.stream,
+          builder: (context, wsData) {
+            if (wsData.hasData) 
+              if(latest_data !=wsData.data){
+                latest_data = wsData.data.toString();
+              navigate_request(wsData.data);}
+            
 
-                  return VolunteerHomeContainer(
-                    user: user,
-                    set_online: set_online,
-                    is_validated: is_validated,
-                    is_online: is_online,
-                  );
-                });
-          }
+            return VolunteerHomeContainer(
+              user: user,
+              set_online: set_online,
+              is_validated: is_validated,
+              is_online: is_online,
+            );
+          });
 
-          return ThemeContainer(
-            children: [
-              Center(
-                child: Container(
-                  child: Text("An error has occured.",
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                          decoration: TextDecoration.none)),
+    return ThemeContainer(
+      children: [
+        Center(
+          child: Container(
+            child: Text("An error has occured.",
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    decoration: TextDecoration.none)),
+          ),
+        ),
+        Center(
+          child: GestureDetector(
+              onTap: () {
+                prefs.remove('user');
+                Navigator.pushReplacementNamed(context, "/login");
+              },
+              child: Container(
+                child: Text(
+                  "Please Login again.",
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20,
+                      decoration: TextDecoration.none),
                 ),
-              ),
-              Center(
-                child: GestureDetector(
-                    onTap: () {
-                      prefs.remove('user');
-                      Navigator.pushReplacementNamed(context, "/login");
-                    },
-                    child: Container(
-                      child: Text(
-                        "Please Login again.",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
-                            decoration: TextDecoration.none),
-                      ),
-                    )),
-              )
-            ],
-          );
-        });
+              )),
+        )
+      ],
+    );
   }
 
   navigate_request(data) {
-    if (latest_data == data) {print("same data!");return;}
     latest_data = data;
     print(data);
     try {
@@ -216,10 +220,10 @@ class _VolunteerHomePageState extends AbstractHomePageState
 
       if (!request_recieved) {
         request_recieved = true;
-        disposeTimer();
-    
-    close_conn();
+
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          close_conn();
+
           Navigator.of(context).pushReplacement(
             new MaterialPageRoute(
                 settings: const RouteSettings(
@@ -229,8 +233,6 @@ class _VolunteerHomePageState extends AbstractHomePageState
                       user: user,
                     )),
           );
-
-          return;
         });
       }
     } catch (e) {}

@@ -151,7 +151,7 @@ class _RequestAcceptedPageState extends State<RequestAcceptedPage>
         ),
       );
 
-  Widget get CancelButton => FinishRequestButtom(submit_request: () async {
+  Widget get FinishButton => FinishRequestButtom(submit_request: () async {
         await convert_to_Request(widget.request)
             .finish_request(widget.user.token, widget.request.id);
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -218,7 +218,7 @@ class _RequestAcceptedPageState extends State<RequestAcceptedPage>
                                               topRight: Radius.circular(20.0))),
                                       child: VolunteerCard(
                                         volunteer: widget.volunteer,
-                                        CancelButton: CancelButton,
+                                        CancelButton: FinishButton,
                                       ))
                                 ],
                               );
@@ -249,10 +249,12 @@ class _RequestAcceptedPageState extends State<RequestAcceptedPage>
       );
 
   handle_ws_message(data) {
+    print(1);
     print(data);
     var response = json.decode(data)["data"];
     if (response["response"] == "cancel") {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        close_conn();
         Navigator.of(context).pushReplacement(
           new MaterialPageRoute(
               settings:
@@ -267,6 +269,7 @@ class _RequestAcceptedPageState extends State<RequestAcceptedPage>
     }
     if (response["response"] == "finish") {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        close_conn();
         dialog("Request is finished.");
         Navigator.pushReplacementNamed(context, '/specialneeds/home');
       });

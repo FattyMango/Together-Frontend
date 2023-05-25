@@ -17,7 +17,7 @@ import '../buttons/drop_down_button.dart';
 class SendRequestPage extends StatefulWidget {
   final Function submit_request;
   final UserDeserializer user;
-  final Position pos;
+  final latLng.LatLng pos;
 
   SendRequestPage({
     super.key,

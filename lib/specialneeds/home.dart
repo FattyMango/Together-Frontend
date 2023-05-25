@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:together/abstracts/abstract_state.dart';
 import 'package:together/deserializers/request.dart';
+import 'package:together/mixins/prefs_mixin.dart';
 import 'package:together/pages/error_page.dart';
 import 'package:together/mixins/location_mixin.dart';
 import 'package:together/mixins/user_fetch_mixin.dart';
 import 'package:together/mixins/websocket_mixin.dart';
+import 'package:together/singeltons/user_singelton.dart';
 import 'package:together/specialneeds/buttons/send_request.dart';
 import 'package:together/specialneeds/classes/request.dart';
 import 'package:together/specialneeds/pages/specialneeds_request_accepted_page.dart';
@@ -20,28 +23,48 @@ import 'package:together/specialneeds/pages/waiting_accept_request.dart';
 import '../deserializers/user.dart';
 import 'buttons/drop_down_button.dart';
 
-class SpecialNeedsHomePage extends AbstractHomePage {
+class SpecialNeedsHomePage extends StatefulWidget {
   SpecialNeedsHomePage({super.key});
   @override
-  AbstractHomePageState createState() {
+  State<SpecialNeedsHomePage> createState() {
     return SpecialNeedsHomePageState();
   }
 }
 
-class SpecialNeedsHomePageState extends AbstractHomePageState
-    with WebSocketMixin, UserFtecherMixin, LocationFetcherMixin {
+class SpecialNeedsHomePageState extends State<SpecialNeedsHomePage>
+    with WebSocketMixin, LocationFetcherMixin, PrefsMixin {
   late ValueNotifier<latLng.LatLng> pos;
   late Request request;
   late RequestDeserializer CurrentRequest;
   late UserDeserializer volunteer;
   late latLng.LatLng volunteer_location;
-
+  late UserDeserializer user;
   @override
   void initState() {
-    pos = ValueNotifier<latLng.LatLng>(new latLng.LatLng(31.988926, 35.946191));
+    pos = ValueNotifier<latLng.LatLng>(new latLng.LatLng(0,0));
+    user = UserDeserializerSingleton.instance;
+    set_prefs();
+    init_conn();
+    set_location();
     super.initState();
+    
   }
 
+  @override
+  void dispose() {
+    pos.dispose();
+    close_conn();
+    super.dispose();
+  }
+  set_location() async {
+      Position p = await determinePosition();
+      pos.value.latitude = p.latitude;
+      pos.value.longitude = p.longitude;
+      setState(() {
+        
+      });
+    }
+  
   @override
   cantFetchLocation() {
     LocationErrorDialog();
@@ -55,6 +78,9 @@ class SpecialNeedsHomePageState extends AbstractHomePageState
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  setState(() {});
+                });
               },
               child: Text('OK'),
             ),
@@ -71,19 +97,6 @@ class SpecialNeedsHomePageState extends AbstractHomePageState
   String get get_ws_url =>
       "ws://143.42.55.127/ws/user/${user.justID.toString()}/";
 
-  @override
-  void dispose() {
-    pos.dispose();
-    close_conn();
-    super.dispose();
-  }
-
-  Future<UserDeserializer> get_user() async {
-    UserDeserializer user = await init_user();
-    is_online ? await init_conn() : close_conn();
-    return user;
-  }
-
   setCanFetchLocation(value) {
     setState(() {
       canFetchLocation = value;
@@ -92,15 +105,12 @@ class SpecialNeedsHomePageState extends AbstractHomePageState
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: Future.wait([get_user(), determinePosition()]),
-        builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-          if (snapshot.hasData) {
-            UserDeserializer user = snapshot.data![0];
+    
+          
             if (!user.is_specialNeeds)
               return show_error_page(
                   context, prefs, "You are not a special needs student.");
-
+            if(pos.value.latitude!=0)
             return StreamBuilder(
                 stream: channel.stream,
                 builder: (context, wsData) {
@@ -110,10 +120,10 @@ class SpecialNeedsHomePageState extends AbstractHomePageState
                   return SendRequestPage(
                     user: user,
                     submit_request: submit,
-                    pos: snapshot.data![1],
+                    pos: pos.value,
                   );
                 });
-          }
+          
           return ThemeContainer(isDrawer: true, children: [
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -149,7 +159,7 @@ class SpecialNeedsHomePageState extends AbstractHomePageState
               ],
             ),
           ]);
-        });
+       
   }
 
   Future get CantCreateRequestDialog => showDialog(
@@ -187,6 +197,8 @@ class SpecialNeedsHomePageState extends AbstractHomePageState
   }
 
   handle_ws_message(data) async {
+        print(3);
+
     print(data);
     var response = json.decode(data)["data"];
     if (response["response"] == "Error") {

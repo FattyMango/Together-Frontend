@@ -229,7 +229,7 @@ class _VolunteerRequestAcceptedPageState
               TextButton(
                 onPressed: () async {
                   is_dialog_opened = false;
-                  Navigator.pushReplacementNamed(context, '/volunteer/home');
+                  Navigator.pop(context);
                 },
                 child: Text('OK'),
               ),

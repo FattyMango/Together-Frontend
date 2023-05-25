@@ -24,7 +24,7 @@ class _VolunteerHomeContainerState extends State<VolunteerHomeContainer> {
   @override
   Widget build(BuildContext context) {
     return ThemeContainer(
-      isDrawer: false,
+      isDrawer: true,
       children: [
         SizedBox(
           height: 40,

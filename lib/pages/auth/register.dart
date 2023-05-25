@@ -8,13 +8,14 @@ import 'package:together/pages/auth/login.dart';
 import 'package:together/request/requests.dart';
 
 import '../../deserializers/user.dart';
+import '../../singeltons/user_singelton.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
   _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> with PrefsMixin{
+class _RegisterPageState extends State<RegisterPage> with PrefsMixin {
   final _formKey = GlobalKey<FormState>();
 
   late String _justID;
@@ -31,10 +32,11 @@ class _RegisterPageState extends State<RegisterPage> with PrefsMixin{
   Future<void> check_user() async {
     
     await set_prefs();
-
+    
     final String userJson = await prefs.getString('user') ?? '';
     if (userJson != '') {
       UserDeserializer user = new UserDeserializer(userJson);
+
       navigate_user(user);
     }
   }
@@ -72,47 +74,39 @@ class _RegisterPageState extends State<RegisterPage> with PrefsMixin{
         errorMessage = '';
       });
       var data = await post_request(
-        url: 'http://143.42.55.127/user/api/register/',
-        body: {
-          'justID': _justID,
-          'password': _password,
-          'password2': _password2,
-        }
-        );
+          url: 'http://143.42.55.127/user/api/register/',
+          body: {
+            'justID': _justID,
+            'password': _password,
+            'password2': _password2,
+          });
       // Send a request to register the user
-
 
       setState(() {
         _isSubmitting = false;
       });
 
+      if (data['response'] != "Error") if (data['response'] != "Error") {
+        final prefs = await SharedPreferences.getInstance();
+        String response = json.encode(data);
+        await prefs.setString('user', response);
 
-      if (data['response'] != "Error") {
-        
-        await prefs.setString('user', json.encode(data));
-
-        Navigator.of(context).pushReplacement(
-          new MaterialPageRoute(
-            settings: const RouteSettings(name: '/login'),
-            builder: (context) => LoginPage(
-              message:
-                  "Registered successfully, please login or activate your account.",
-            ),
-          ),
-        );
+        UserDeserializer user = new UserDeserializer(response);
+        UserDeserializerSingleton.setInstance(user);
+        Navigator.pushReplacementNamed(context, '/loading');
       } else {
         // Registration failed, display an error message
         setState(() {
           errorMessage = data['response'];
           Navigator.of(context).pushReplacement(
-          new MaterialPageRoute(
-            settings: const RouteSettings(name: '/login'),
-            builder: (context) => LoginPage(
-              message:
-                  "This account exists, please login or activate your account.",
+            new MaterialPageRoute(
+              settings: const RouteSettings(name: '/login'),
+              builder: (context) => LoginPage(
+                message:
+                    "This account exists, please login or activate your account.",
+              ),
             ),
-          ),
-        );
+          );
         });
       }
     }
@@ -166,7 +160,6 @@ class _RegisterPageState extends State<RegisterPage> with PrefsMixin{
                           border: OutlineInputBorder(),
                         ),
                         validator: (value) {
-                          
                           if (value!.isEmpty) {
                             return 'Please enter your password';
                           }
@@ -184,7 +177,6 @@ class _RegisterPageState extends State<RegisterPage> with PrefsMixin{
                           border: OutlineInputBorder(),
                         ),
                         validator: (value) {
-                         
                           if (value!.isEmpty) {
                             return 'Please confirm your password';
                           } else if (value != _password) {

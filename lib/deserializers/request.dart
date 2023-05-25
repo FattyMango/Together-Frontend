@@ -9,7 +9,8 @@ class RequestDeserializer {
   late String _help_type, _request_websocket, _chatroom_websocket, _gender;
   String? _description, _square, _building;
   late latLng.LatLng _latlong;
-  late UserDeserializer? _specialNeed;
+  late UserDeserializer? _specialNeed,_volunteer;
+  late bool _is_finished;
   RequestDeserializer(requestJson) {
     if (requestJson.runtimeType == String)
       _data = new Map<String, dynamic>.from(json.decode(requestJson));
@@ -41,10 +42,16 @@ class RequestDeserializer {
     _request_websocket = _data["request_websocket"];
     _chatroom_websocket = _data["chatroom_websocket"];
     _gender = _data["gender"];
+    _is_finished = _data["is_finished"];
     try {
       _specialNeed = new UserDeserializer(json.encode(_data["specialNeed"]));
     } catch (e) {
       _specialNeed = null;
+    }
+     try {
+      _volunteer = new UserDeserializer(json.encode(_data["volunteer"]));
+    } catch (e) {
+      _volunteer = null;
     }
   }
 
@@ -80,8 +87,13 @@ class RequestDeserializer {
   int get id {
     return _id;
   }
-
+  bool get is_finished {
+    return _is_finished;
+  }
   UserDeserializer get specialNeed {
     return _specialNeed!;
+  }
+  UserDeserializer? get volunteer {
+    return _volunteer;
   }
 }
