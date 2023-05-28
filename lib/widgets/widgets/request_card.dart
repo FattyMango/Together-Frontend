@@ -110,8 +110,8 @@ class RequestCard extends StatelessWidget {
               children: [
                 Container(
                     margin: const EdgeInsets.only(top: 10),
-                    child: Image.network(
-                      "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg",
+                    child: Image.asset(
+                      "assets/images/default_img.jpg",
                       width: 75,
                       height: 75,
                     )),

@@ -41,13 +41,12 @@ class SpecialNeedsHomePageState extends State<SpecialNeedsHomePage>
   late UserDeserializer user;
   @override
   void initState() {
-    pos = ValueNotifier<latLng.LatLng>(new latLng.LatLng(0,0));
+    pos = ValueNotifier<latLng.LatLng>(new latLng.LatLng(0, 0));
     user = UserDeserializerSingleton.instance;
     set_prefs();
     init_conn();
     set_location();
     super.initState();
-    
   }
 
   @override
@@ -56,31 +55,34 @@ class SpecialNeedsHomePageState extends State<SpecialNeedsHomePage>
     close_conn();
     super.dispose();
   }
+
   set_location() async {
-      Position p = await determinePosition();
-      pos.value.latitude = p.latitude;
-      pos.value.longitude = p.longitude;
-      setState(() {
-        
-      });
-    }
-  
+    Position p = await determinePosition();
+    pos.value.latitude = p.latitude;
+    pos.value.longitude = p.longitude;
+    print(pos.value);
+    setState(() {});
+  }
+
   @override
   cantFetchLocation() {
     LocationErrorDialog();
   }
 
   LocationErrorDialog() => showDialog(
+        barrierDismissible: false,
         builder: (BuildContext context) => AlertDialog(
           title: Text('error'),
           content: Text("Please enable the location service."),
           actions: [
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.pop(context);
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  setState(() {});
-                });
+                await set_location();
+
+                if (pos.value.latitude == 0) LocationErrorDialog();
+
+                setState(() {});
               },
               child: Text('OK'),
             ),
@@ -105,61 +107,58 @@ class SpecialNeedsHomePageState extends State<SpecialNeedsHomePage>
 
   @override
   Widget build(BuildContext context) {
-    
-          
-            if (!user.is_specialNeeds)
-              return show_error_page(
-                  context, prefs, "You are not a special needs student.");
-            if(pos.value.latitude!=0)
-            return StreamBuilder(
-                stream: channel.stream,
-                builder: (context, wsData) {
-                  if (wsData.hasData) {
-                    handle_ws_message(wsData.requireData);
-                  }
-                  return SendRequestPage(
-                    user: user,
-                    submit_request: submit,
-                    pos: pos.value,
-                  );
-                });
-          
-          return ThemeContainer(isDrawer: true, children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height / 3,
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 15, right: 15),
-                  child: Text(
-                    "Please wait until we get you ready.",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  "Please make sure location service is enabled",
-                  style: TextStyle(fontSize: 20),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                SpinKitFadingCircle(
-                  color: Colors.black,
-                  size: 75.0,
-                )
-              ],
+    if (!user.is_specialNeeds)
+      return show_error_page(
+          context, prefs, "You are not a special needs student.");
+    if (pos.value.latitude != 0)
+      return StreamBuilder(
+          stream: channel.stream,
+          builder: (context, wsData) {
+            if (wsData.hasData) {
+              handle_ws_message(wsData.requireData);
+            }
+            return SendRequestPage(
+              user: user,
+              submit_request: submit,
+              pos: pos.value,
+            );
+          });
+
+    return ThemeContainer(isDrawer: true, children: [
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height / 3,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 15, right: 15),
+            child: Text(
+              "Please wait until we get you ready.",
+              style: TextStyle(fontSize: 20),
             ),
-          ]);
-       
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            "Please make sure location service is enabled",
+            style: TextStyle(fontSize: 20),
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          SpinKitFadingCircle(
+            color: Colors.black,
+            size: 75.0,
+          )
+        ],
+      ),
+    ]);
   }
 
   Future get CantCreateRequestDialog => showDialog(
@@ -197,7 +196,7 @@ class SpecialNeedsHomePageState extends State<SpecialNeedsHomePage>
   }
 
   handle_ws_message(data) async {
-        print(3);
+    print(3);
 
     print(data);
     var response = json.decode(data)["data"];

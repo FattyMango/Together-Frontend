@@ -43,6 +43,7 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
   ErrorDialog(String message) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showDialog(
+        
         builder: (BuildContext context) => AlertDialog(
           title: Text('error'),
           content: Text(message),

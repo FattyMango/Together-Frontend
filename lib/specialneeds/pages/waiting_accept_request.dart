@@ -37,8 +37,9 @@ class _WaitingForVolunteerPageState extends State<WaitingForVolunteerPage>
   @override
   void initState() {
     // TODO: implement initState
-    init_conn();
+    
     super.initState();
+    init_conn();
   }
   // @override
   // void dispose() {
@@ -63,6 +64,7 @@ class _WaitingForVolunteerPageState extends State<WaitingForVolunteerPage>
   }
 
   dynamic get CouldntFindVolunteerDialog => showDialog(
+    barrierDismissible: false,
         builder: (BuildContext context) => AlertDialog(
           title: Text('error'),
           content:

@@ -27,7 +27,7 @@ import '../mixins/periodic_mixin.dart';
 import '../mixins/prefs_mixin.dart';
 import '../mixins/websocket_mixin.dart';
 import '../singeltons/user_singelton.dart';
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 class VolunteerHomePage extends StatefulWidget {
   VolunteerHomePage({super.key});
 
@@ -48,16 +48,21 @@ class _VolunteerHomePageState extends State<VolunteerHomePage>
   String latest_data = "";
   late bool is_validated, is_online;
   late UserDeserializer user;
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+FlutterLocalNotificationsPlugin();
   @override
   void initState() {
     // TODO: implement initState
-    
+     Noti.initialize(flutterLocalNotificationsPlugin);
     handle_user_changes(UserDeserializerSingleton.instance);
     set_prefs();
     super.initState();
     initTimer();
     init_conn();
+
   }
+
+
   handle_user_changes(UserDeserializer user){
     is_validated = user.is_validated;
     
@@ -143,6 +148,7 @@ class _VolunteerHomePageState extends State<VolunteerHomePage>
   }
 
   LocationErrorDialog() => showDialog(
+    barrierDismissible: false,
         builder: (BuildContext context) => AlertDialog(
           title: Text('error'),
           content: Text("Please enable the location service."),
@@ -211,10 +217,11 @@ class _VolunteerHomePageState extends State<VolunteerHomePage>
     );
   }
 
-  navigate_request(data) {
+  navigate_request(data)async {
     latest_data = data;
     print(data);
     try {
+ Noti.showBigTextNotification(title: "my title", body: "my fat body", fln: flutterLocalNotificationsPlugin);
       RequestDeserializer request =
           new RequestDeserializer(json.decode(data)["data"]);
 
@@ -237,4 +244,31 @@ class _VolunteerHomePageState extends State<VolunteerHomePage>
       }
     } catch (e) {}
   }
+}
+class Noti{
+  static Future initialize(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+    var androidInitialize = new AndroidInitializationSettings('@mipmap/ic_launcher');
+   
+    var initializationsSettings = new InitializationSettings(android: androidInitialize,
+        );
+    await flutterLocalNotificationsPlugin.initialize(initializationsSettings );
+  }
+
+  static Future showBigTextNotification({var id =0,required String title, required String body,
+    var payload, required FlutterLocalNotificationsPlugin fln
+  } ) async {
+    AndroidNotificationDetails androidPlatformChannelSpecifics =
+    new AndroidNotificationDetails(
+      'you_can_name_it_whatever1',
+      'channel_name',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+
+    var not= NotificationDetails(android: androidPlatformChannelSpecifics,
+        
+    );
+    await fln.show(0, title, body,not );
+  }
+
 }

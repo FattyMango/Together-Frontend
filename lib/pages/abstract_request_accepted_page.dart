@@ -44,32 +44,10 @@ class _VolunteerRequestAcceptedPageState
   late IOWebSocketChannel chatChannel;
 
   bool isChatOpened = false;
-  
-  bool isNewMessage = false;
   @override
   void initState() {
     // TODO: implement initState
     init_conn();
-    initChatWebSocket();
-    super.initState();
-
-    var ll = new latLng.LatLng(
-        widget.request.latlong.latitude, widget.request.latlong.longitude);
-    latlong = new ValueNotifier<latLng.LatLng>(ll);
-    periodic_function();
-    calc_distance();
-  }
-
-  @override
-  void dispose() {
-    disposeTimer();
-    close_conn();
-    chatChannel.sink.close();
-    latlong.dispose();
-    super.dispose();
-  }
-
-  void initChatWebSocket() {
     chatChannel = IOWebSocketChannel.connect(
         Uri.parse(widget.request.chatroom_websocket),
         headers: ws_headers);
@@ -85,13 +63,32 @@ class _VolunteerRequestAcceptedPageState
                 ? true
                 : false,
             date_created: message["data"]["date_created"]));
-            if (!isChatOpened) isNewMessage = true;
       });
       if (isChatOpened) {
         MessagesDialog;
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
       }
       ;
     });
+    super.initState();
+
+    var ll = new latLng.LatLng(
+        widget.request.latlong.latitude, widget.request.latlong.longitude);
+    latlong = new ValueNotifier<latLng.LatLng>(ll);
+    periodic_function();
+    calc_distance();
+  }
+
+  @override
+  void dispose() {
+    disposeTimer();
+    close_conn();
+    latlong.dispose();
+    super.dispose();
   }
 
   @override
@@ -189,7 +186,6 @@ class _VolunteerRequestAcceptedPageState
           ),
         ),
       );
-
   void _sendMessage(String text, bool isUsersMessage) {
     // messages.add(Message(text: text, isUsersMessage: isUsersMessage));
     _textEditingController.clear();
@@ -305,28 +301,14 @@ class _VolunteerRequestAcceptedPageState
     });
   }
 
-  Widget get ChatButton => Stack(children: [
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.white54,shadowColor:Colors.white54 ,alignment: Alignment.center),
-            onPressed: () { MessagesDialog;
-            setState(() {
-              isNewMessage = false;
-            });},
-            child: Container(
-              margin: EdgeInsets.all(5),
-              alignment: Alignment.center,
-              child: Icon(
-                Icons.message_outlined,
-                color: Colors.lightBlue.shade700,
-              ),
-            )),
-        isNewMessage?Container(
-          height: 7,
-          width: 7,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5), color: Colors.red),
-        ):Container()
-      ]);
+  Widget get ChatButton => ElevatedButton(
+      onPressed: () {
+        MessagesDialog;
+      },
+      child: Icon(
+        Icons.message_outlined,
+        color: Colors.lightBlue,
+      ));
 
   Widget myMessasge(Message message) => Padding(
         padding: const EdgeInsets.all(3),
@@ -399,128 +381,67 @@ class _VolunteerRequestAcceptedPageState
           ],
         ),
       );
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
         stream: channel.stream,
         builder: (context, wsData) {
-          //          StreamBuilder(
-          // stream: chatChannel.stream,
-          // builder: (context, chatData) {
-          //   if (chatData.hasData) {
-          //     print(chatData.requireData);
-
-          //   }
+         
           if (wsData.hasData) {
             handle_ws_message(wsData.requireData);
           }
           return Scaffold(
             body: Stack(
-              children: [
-                MapWidget,
-                SizedBox.expand(
-                    child: DraggableScrollableSheet(
-                        initialChildSize: 0.3,
-                        minChildSize: 0.25,
-                        maxChildSize: 0.4,
-                        builder: (BuildContext context,
-                            ScrollController scrollController) {
-                          return ListView.builder(
-                            controller: scrollController,
-                            itemCount: 1,
-                            itemBuilder: (BuildContext context, int index) {
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(5),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [DisplayDistance, ChatButton],
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 5,
-                                  ),
-                                  Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    height: MediaQuery.of(context).size.height /
-                                            2.8 -
-                                        5,
-                                    decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.8),
-                                        border: Border.all(
-                                            color:
-                                                Colors.black.withOpacity(0.2)),
-                                        borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(20.0),
-                                            topRight: Radius.circular(20.0))),
-                                    child: RequestCard(
-                                        request: widget.request,
-                                        CancelButton: CancelRequestButton(
-                                            user: widget.user,
-                                            request: widget.request,
-                                            set_accepted: () {},
-                                            ErrorDialog: () {})),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        }))
-              ],
+              children: [MapWidget, DraggableCard],
             ),
           );
         });
   }
 
-  setCanFetchLocation(value) {
-    setState(() {
-      canFetchLocation = value;
-    });
-  }
+  Widget get Card => throw UnimplementedError();
 
-  dynamic dialog(String message) => showDialog(
-        builder: (BuildContext context) => AlertDialog(
-          title: Text('error'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                is_dialog_opened = false;
-                Navigator.pop(context);
+  Widget get DraggableCard => SizedBox.expand(
+      child: DraggableScrollableSheet(
+          initialChildSize: 0.3,
+          minChildSize: 0.25,
+          maxChildSize: 0.4,
+          builder: (BuildContext context, ScrollController scrollController) {
+            return ListView.builder(
+              controller: scrollController,
+              itemCount: 1,
+              itemBuilder: (BuildContext context, int index) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [DisplayDistance, ChatButton],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height / 2.8 - 5,
+                      decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.8),
+                          border:
+                              Border.all(color: Colors.black.withOpacity(0.2)),
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20.0),
+                              topRight: Radius.circular(20.0))),
+                      child: Card,
+                    ),
+                  ],
+                );
               },
-              child: Text('OK'),
-            ),
-          ],
-        ),
-        context: context,
-      );
+            );
+          }));
 
-  void handle_ws_message(data) {
-    print(data);
-    var response = json.decode(data)["data"];
-    if (response["response"] == "finish") {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(context, '/volunteer/home');
-        dialog("Request is finished.");
-
-        return;
-      });
-      return;
-    }
-
-    if (response["response"] == "cancel") {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(context, '/volunteer/home');
-        dialog("Request is canceled.");
-
-        return;
-      });
-    }
-  }
+  void handle_ws_message(data) => throw UnimplementedError();
 }
 
 class Message {

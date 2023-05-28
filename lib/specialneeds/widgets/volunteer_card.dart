@@ -45,8 +45,8 @@ class VolunteerCard extends StatelessWidget {
             Column(
               children: [
                 Container(
-                    child: Image.network(
-                      "https://icon-library.com/images/default-profile-icon/default-profile-icon-24.jpg",
+                    child:Image.asset(
+                      "assets/images/default_img.jpg",
                       width: 100,
                       height: 100,
                     )),
