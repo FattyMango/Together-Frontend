@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:together/mixins/prefs_mixin.dart';
 
-
-
 class ThemeContainer extends StatefulWidget {
   final Function? onLogout;
   final isDrawer;
@@ -22,7 +20,7 @@ class _ThemeContainerState extends State<ThemeContainer> with PrefsMixin {
         padding: const EdgeInsets.all(0),
         child: Container(
           width: MediaQuery.of(context).size.width,
-          color: Color.fromARGB(231, 242, 253, 255),
+          color: Color.fromARGB(231, 173, 205, 211),
           child: Container(
             width: MediaQuery.of(context).size.width - 100,
             decoration:
@@ -47,15 +45,16 @@ class _ThemeContainerState extends State<ThemeContainer> with PrefsMixin {
     //     ));
     return Scaffold(
       appBar: AppBar(
-    toolbarHeight: 40,
-   shape:RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(
-        bottom: Radius.circular(40),
+        backgroundColor: Colors.lightBlue.shade800,
+        toolbarHeight: 40,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(35),
+          ),
+        ),
       ),
-    ),
-  ),
       body: Container(
-          color: Color.fromARGB(231, 242, 253, 255),
+          color: Color.fromARGB(231, 240, 253, 255),
           child: ListView(
             children: widget.children,
           )),
@@ -69,28 +68,30 @@ class _ThemeContainerState extends State<ThemeContainer> with PrefsMixin {
                   children: [
                     Container(
                       height: 80,
-                      color: Colors.blue.shade300,
-                      margin: EdgeInsets.only(),
                       alignment: Alignment.topCenter,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 35, left: 20),
-                        child: Center(
-                          child: Text(
-                            "Options",
-                            style: TextStyle(
-                              color: Colors.white,
+                      child: Center(
+                        child: Text(
+                          "Options",
+                          style: TextStyle(
+                              color: Colors.black87,
                               fontSize: 26,
-                            ),
-                            textAlign: TextAlign.left,
-                          ),
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
-                    TextButton(
-                      onPressed: () async {await logout();},
-                      child: Text("Logout"),
-                      style: TextButton.styleFrom(
-                          foregroundColor: Colors.redAccent.shade700),
+                    SizedBox(height: MediaQuery.of(context).size.height-150,),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await logout();
+                      },
+                      child: Text(
+                        "Logout",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                          fixedSize:
+                              Size(MediaQuery.of(context).size.width, 80),
+                          backgroundColor: Colors.red.shade600),
                     )
                   ],
                 ),
@@ -100,7 +101,7 @@ class _ThemeContainerState extends State<ThemeContainer> with PrefsMixin {
     );
   }
 
-   logout() async {
+  logout() async {
     await set_prefs();
     prefs.remove("user");
 

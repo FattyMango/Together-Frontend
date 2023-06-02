@@ -117,7 +117,7 @@ class _WaitingForVolunteerPageState extends State<WaitingForVolunteerPage>
                     color: Colors.black,
                     size: 50.0,
                   ),
-               SizedBox(height:50),
+               SizedBox(height:MediaQuery.of(context).size.height/4),
                CancelButton
                 ],
               ),

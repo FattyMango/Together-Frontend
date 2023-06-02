@@ -44,7 +44,7 @@ class _VolunteerRequestAcceptedPageState
   late IOWebSocketChannel chatChannel;
 
   bool isChatOpened = false;
-  
+
   bool isNewMessage = false;
   @override
   void initState() {
@@ -85,7 +85,7 @@ class _VolunteerRequestAcceptedPageState
                 ? true
                 : false,
             date_created: message["data"]["date_created"]));
-            if (!isChatOpened) isNewMessage = true;
+        if (!isChatOpened) isNewMessage = true;
       });
       if (isChatOpened) {
         MessagesDialog;
@@ -307,11 +307,16 @@ class _VolunteerRequestAcceptedPageState
 
   Widget get ChatButton => Stack(children: [
         ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.white54,shadowColor:Colors.white54 ,alignment: Alignment.center),
-            onPressed: () { MessagesDialog;
-            setState(() {
-              isNewMessage = false;
-            });},
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white54,
+                shadowColor: Colors.white54,
+                alignment: Alignment.center),
+            onPressed: () {
+              MessagesDialog;
+              setState(() {
+                isNewMessage = false;
+              });
+            },
             child: Container(
               margin: EdgeInsets.all(5),
               alignment: Alignment.center,
@@ -320,12 +325,14 @@ class _VolunteerRequestAcceptedPageState
                 color: Colors.lightBlue.shade700,
               ),
             )),
-        isNewMessage?Container(
-          height: 7,
-          width: 7,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5), color: Colors.red),
-        ):Container()
+        isNewMessage
+            ? Container(
+                height: 7,
+                width: 7,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5), color: Colors.red),
+              )
+            : Container()
       ]);
 
   Widget myMessasge(Message message) => Padding(
@@ -405,16 +412,8 @@ class _VolunteerRequestAcceptedPageState
     return StreamBuilder(
         stream: channel.stream,
         builder: (context, wsData) {
-          //          StreamBuilder(
-          // stream: chatChannel.stream,
-          // builder: (context, chatData) {
-          //   if (chatData.hasData) {
-          //     print(chatData.requireData);
+          if (wsData.hasData) handle_ws_message(wsData.requireData);
 
-          //   }
-          if (wsData.hasData) {
-            handle_ws_message(wsData.requireData);
-          }
           return Scaffold(
             body: Stack(
               children: [
@@ -459,11 +458,23 @@ class _VolunteerRequestAcceptedPageState
                                             topRight: Radius.circular(20.0))),
                                     child: RequestCard(
                                         request: widget.request,
-                                        CancelButton: CancelRequestButton(
-                                            user: widget.user,
-                                            request: widget.request,
-                                            set_accepted: () {},
-                                            ErrorDialog: () {})),
+                                        CancelButton: ElevatedButton(
+                                          onPressed: () {
+                                            cancel_request();
+                                          },
+                                          child: Text(
+                                            "Cancel request",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                              fixedSize: Size(150, 60),
+                                              backgroundColor:
+                                                  Colors.red.shade600),
+                                        )
+                                       
+
+                                        ),
                                   ),
                                 ],
                               );
@@ -479,6 +490,19 @@ class _VolunteerRequestAcceptedPageState
   setCanFetchLocation(value) {
     setState(() {
       canFetchLocation = value;
+    });
+  }
+
+  cancel_request() async {
+    Map<String, dynamic> res = await put_request(
+        url:
+            "http://143.42.55.127/request/api/cancel/${widget.request.id.toString()}/",
+        headers: {"Authorization": "Token " + widget.user.token},
+        body: {});
+    // if (res["response"] == "Error") widget.ErrorDialog(res["message"]);
+
+    Future.delayed(Duration.zero, () {
+      Navigator.pushReplacementNamed(context, '/volunteer/home');
     });
   }
 
@@ -506,18 +530,13 @@ class _VolunteerRequestAcceptedPageState
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacementNamed(context, '/volunteer/home');
         dialog("Request is finished.");
-
-        return;
       });
-      return;
     }
 
     if (response["response"] == "cancel") {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacementNamed(context, '/volunteer/home');
         dialog("Request is canceled.");
-
-        return;
       });
     }
   }

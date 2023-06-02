@@ -28,6 +28,7 @@ import '../mixins/prefs_mixin.dart';
 import '../mixins/websocket_mixin.dart';
 import '../singeltons/user_singelton.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 class VolunteerHomePage extends StatefulWidget {
   VolunteerHomePage({super.key});
 
@@ -48,28 +49,27 @@ class _VolunteerHomePageState extends State<VolunteerHomePage>
   String latest_data = "";
   late bool is_validated, is_online;
   late UserDeserializer user;
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   @override
   void initState() {
     // TODO: implement initState
-     Noti.initialize(flutterLocalNotificationsPlugin);
+    Noti.initialize(flutterLocalNotificationsPlugin);
     handle_user_changes(UserDeserializerSingleton.instance);
     set_prefs();
     super.initState();
     initTimer();
     init_conn();
-
   }
 
-
-  handle_user_changes(UserDeserializer user){
+  handle_user_changes(UserDeserializer user) {
     is_validated = user.is_validated;
-    
-    is_online = is_validated?user.is_online:false;
+
+    is_online = is_validated ? user.is_online : false;
     this.user = user;
     UserDeserializerSingleton.setInstance(user);
   }
+
   @override
   void dispose() {
     disposeTimer();
@@ -136,11 +136,11 @@ FlutterLocalNotificationsPlugin();
 
   set_online(res) async {
     await prefs.setString('user', json.encode(res));
-    
+
     UserDeserializer u = new UserDeserializer(json.encode(res));
     if (is_online != res["is_online"])
       setState(() {
-       handle_user_changes(u);
+        handle_user_changes(u);
       });
     if (is_online) {
       update_location();
@@ -148,7 +148,7 @@ FlutterLocalNotificationsPlugin();
   }
 
   LocationErrorDialog() => showDialog(
-    barrierDismissible: false,
+        barrierDismissible: false,
         builder: (BuildContext context) => AlertDialog(
           title: Text('error'),
           content: Text("Please enable the location service."),
@@ -172,11 +172,10 @@ FlutterLocalNotificationsPlugin();
       return StreamBuilder(
           stream: channel!.stream,
           builder: (context, wsData) {
-            if (wsData.hasData) 
-              if(latest_data !=wsData.data){
-                latest_data = wsData.data.toString();
-              navigate_request(wsData.data);}
-            
+            if (wsData.hasData) if (latest_data != wsData.data) {
+              latest_data = wsData.data.toString();
+              navigate_request(wsData.data);
+            }
 
             return VolunteerHomeContainer(
               user: user,
@@ -217,19 +216,22 @@ FlutterLocalNotificationsPlugin();
     );
   }
 
-  navigate_request(data)async {
+  navigate_request(data) async {
     latest_data = data;
     print(data);
     try {
- Noti.showBigTextNotification(title: "my title", body: "my fat body", fln: flutterLocalNotificationsPlugin);
       RequestDeserializer request =
           new RequestDeserializer(json.decode(data)["data"]);
 
       if (!request_recieved) {
         request_recieved = true;
-
+        Noti.showBigTextNotification(
+            title: "Hurry Up!",
+            body: "${request.specialNeed.full_name} needs your help at ${request.square}${request.building}",
+            fln: flutterLocalNotificationsPlugin);
+            dispose();
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          close_conn();
+          
 
           Navigator.of(context).pushReplacement(
             new MaterialPageRoute(
@@ -245,30 +247,36 @@ FlutterLocalNotificationsPlugin();
     } catch (e) {}
   }
 }
-class Noti{
-  static Future initialize(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
-    var androidInitialize = new AndroidInitializationSettings('@mipmap/ic_launcher');
-   
-    var initializationsSettings = new InitializationSettings(android: androidInitialize,
-        );
-    await flutterLocalNotificationsPlugin.initialize(initializationsSettings );
+
+class Noti {
+  static Future initialize(
+      FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+    var androidInitialize =
+        new AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    var initializationsSettings = new InitializationSettings(
+      android: androidInitialize,
+    );
+    await flutterLocalNotificationsPlugin.initialize(initializationsSettings);
   }
 
-  static Future showBigTextNotification({var id =0,required String title, required String body,
-    var payload, required FlutterLocalNotificationsPlugin fln
-  } ) async {
+  static Future showBigTextNotification(
+      {var id = 0,
+      required String title,
+      required String body,
+      var payload,
+      required FlutterLocalNotificationsPlugin fln}) async {
     AndroidNotificationDetails androidPlatformChannelSpecifics =
-    new AndroidNotificationDetails(
+        new AndroidNotificationDetails(
       'you_can_name_it_whatever1',
       'channel_name',
       importance: Importance.max,
       priority: Priority.high,
     );
 
-    var not= NotificationDetails(android: androidPlatformChannelSpecifics,
-        
+    var not = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
     );
-    await fln.show(0, title, body,not );
+    await fln.show(0, title, body, not);
   }
-
 }

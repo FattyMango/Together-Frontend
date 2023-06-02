@@ -42,7 +42,24 @@ class UserDeserializer {
     _is_volunteer = _data['is_volunteer'];
     _is_validated = _data['is_validated'];
   }
-
+  static UserDeserializer get dummy {
+    return UserDeserializer(json.encode({
+      "id":0,
+      "email": "nodata",
+      "justID": 0,
+      "token": "nodata",
+      "full_name": "nodata",
+      "gender": "nodata",
+      "is_active": false,
+      "is_validated": false,
+      "is_admin": false,
+      "is_online": false,
+      "is_just_admin": false,
+      "is_volunteer": false,
+      "is_specialNeeds": false,
+      "phone_number": "nodata",
+    }));
+  }
   int get justID {
     return _justID;
   }

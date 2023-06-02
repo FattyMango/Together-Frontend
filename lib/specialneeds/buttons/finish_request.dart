@@ -22,32 +22,47 @@ class _FinishRequestButtomState extends State<FinishRequestButtom> {
   Color get_secondary_color(){return Color.fromARGB(231, 242, 253, 255);}
 
   Widget get get_button{
-    return Container(
-      decoration: BoxDecoration(
-          color: get_secondary_color(),
-          borderRadius: BorderRadius.circular(10),
-          border:
-              Border.all(color: get_primary_color(), width: 1.25),
-          boxShadow: [
-            BoxShadow(
-              color: get_primary_color(),
-              blurRadius: 6.0,
-              spreadRadius: 0.7,
-            ), //BoxShadow
-          ]),
-      width: 175,
-      height: 60,
-      child: ElevatedButton(
-        onPressed: (){widget.submit_request();},
-        child: Text(
-          get_text(),
-          style: TextStyle(color: get_primary_color(),fontSize: 16),
-        ),
-        style: ElevatedButton.styleFrom(
-            fixedSize: Size(50, 35),
-            backgroundColor: get_secondary_color()),
+    return ElevatedButton(
+      onPressed: () {
+        widget.submit_request();
+      },
+      child: Text(
+        "Finish request",
+        style: TextStyle(color: Colors.white),
       ),
+      style: ElevatedButton.styleFrom(
+          fixedSize: Size(175, 60), backgroundColor: Colors.red.shade600),
     );
+    
+    
+    
+    
+    // Container(
+    //   decoration: BoxDecoration(
+    //       color: get_secondary_color(),
+    //       borderRadius: BorderRadius.circular(10),
+    //       border:
+    //           Border.all(color: get_primary_color(), width: 1.25),
+    //       boxShadow: [
+    //         BoxShadow(
+    //           color: get_primary_color(),
+    //           blurRadius: 6.0,
+    //           spreadRadius: 0.7,
+    //         ), //BoxShadow
+    //       ]),
+    //   width: 175,
+    //   height: 60,
+    //   child: ElevatedButton(
+    //     onPressed: (){widget.submit_request();},
+    //     child: Text(
+    //       get_text(),
+    //       style: TextStyle(color: get_primary_color(),fontSize: 16),
+    //     ),
+    //     style: ElevatedButton.styleFrom(
+    //         fixedSize: Size(50, 35),
+    //         backgroundColor: get_secondary_color()),
+    //   ),
+    // );
   }
 
   @override

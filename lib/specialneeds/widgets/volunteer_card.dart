@@ -70,7 +70,7 @@ class VolunteerCard extends StatelessWidget {
         children: [
           UserInfo,
           SizedBox(
-            height: 75,
+            height: 35,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

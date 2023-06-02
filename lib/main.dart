@@ -15,9 +15,14 @@ import 'package:together/volunteer/pages/volunteer_request_accepted_page.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 
+import 'background.dart';
 import 'pages/auth/register.dart';
 
-void main() => runApp(MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeService();
+  runApp( MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override

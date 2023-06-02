@@ -93,9 +93,11 @@ class _LoadingPageState extends AbstractHomePageState with UserFtecherMixin {
   }
 
   Future navigate_user() async {
-    await UserDeserializerSingleton.getInstance();
+    
+    
 
     sleep(Duration(seconds: 3));
+    await UserDeserializerSingleton.getInstance();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!UserDeserializerSingleton.is_instance) return handleNoUserData();
       user = UserDeserializerSingleton.instance;
