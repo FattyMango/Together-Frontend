@@ -138,6 +138,8 @@ class _VolunteerHomePageState extends State<VolunteerHomePage>
     await prefs.setString('user', json.encode(res));
 
     UserDeserializer u = new UserDeserializer(json.encode(res));
+    print(u.is_online);
+    UserDeserializerSingleton.setInstance(u);
     if (is_online != res["is_online"])
       setState(() {
         handle_user_changes(u);
@@ -225,10 +227,10 @@ class _VolunteerHomePageState extends State<VolunteerHomePage>
 
       if (!request_recieved) {
         request_recieved = true;
-        Noti.showBigTextNotification(
-            title: "Hurry Up!",
-            body: "${request.specialNeed.full_name} needs your help at ${request.square}${request.building}",
-            fln: flutterLocalNotificationsPlugin);
+        // Noti.showBigTextNotification(
+        //     title: "Hurry Up!",
+        //     body: "${request.specialNeed.full_name} needs your help at ${request.square}${request.building}",
+        //     fln: flutterLocalNotificationsPlugin);
             dispose();
         WidgetsBinding.instance.addPostFrameCallback((_) {
           

@@ -495,7 +495,7 @@ Widget get ChatButton => Stack(children: [
                 ),
               ),
               content: Container(
-                height: MediaQuery.of(context).size.height / 3,
+                height: MediaQuery.of(context).size.height / 2.5,
                 width: MediaQuery.of(context).size.width - 100,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

@@ -20,7 +20,7 @@ import 'pages/auth/register.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeService();
+  await UserDeserializerSingleton.getInstance();
   runApp( MyApp());
 }
 

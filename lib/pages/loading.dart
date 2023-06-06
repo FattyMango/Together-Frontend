@@ -12,6 +12,7 @@ import 'package:together/specialneeds/pages/waiting_accept_request.dart';
 import 'package:together/volunteer/pages/volunteer_request_accepted_page.dart';
 
 import '../abstracts/abstract_state.dart';
+import '../background.dart';
 import '../request/requests.dart';
 import '../specialneeds/pages/specialneeds_request_accepted_page.dart';
 
@@ -33,7 +34,6 @@ class _LoadingPageState extends AbstractHomePageState with UserFtecherMixin {
   Future wait_five_seconds() async {
     return new Future.delayed(const Duration(seconds: 5), () => true);
   }
-
 
   Future<RequestDeserializer?> get_latest_request(bool isVolunteer) async {
     var data = await get_request(
@@ -72,16 +72,19 @@ class _LoadingPageState extends AbstractHomePageState with UserFtecherMixin {
       );
     return true;
   }
- navigate_volunteer(RequestDeserializer request){
-   Navigator.of(context).pushReplacement(
-        new MaterialPageRoute(
-            settings: const RouteSettings(name: '/volunteerrequest/accepted'),
-            builder: (context) => VolunteerRequestAcceptedPage(
-                  request: request,
-                  user: user,
-                )),
-      );
-  return true;}
+
+  navigate_volunteer(RequestDeserializer request) {
+    Navigator.of(context).pushReplacement(
+      new MaterialPageRoute(
+          settings: const RouteSettings(name: '/volunteerrequest/accepted'),
+          builder: (context) => VolunteerRequestAcceptedPage(
+                request: request,
+                user: user,
+              )),
+    );
+    return true;
+  }
+
   Future<bool> check_last_request(UserDeserializer user) async {
     RequestDeserializer? request = await get_latest_request(user.is_volunteer);
     if (request != null && !request.is_finished) {
@@ -93,19 +96,18 @@ class _LoadingPageState extends AbstractHomePageState with UserFtecherMixin {
   }
 
   Future navigate_user() async {
-    
-    
-
     sleep(Duration(seconds: 3));
     await UserDeserializerSingleton.getInstance();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!UserDeserializerSingleton.is_instance) return handleNoUserData();
       user = UserDeserializerSingleton.instance;
-
+      
       if (await check_last_request(user)) return;
 
-      if (user.is_volunteer)
-        Navigator.pushReplacementNamed(context, "/volunteer/home");
+      if (user.is_volunteer){
+
+        initializeService(user);
+        Navigator.pushReplacementNamed(context, "/volunteer/home");}
       else if (user.is_specialNeeds)
         Navigator.pushReplacementNamed(context, "/specialneeds/home");
       else
