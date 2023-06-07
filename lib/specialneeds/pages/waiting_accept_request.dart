@@ -82,7 +82,12 @@ class _WaitingForVolunteerPageState extends State<WaitingForVolunteerPage>
         ),
         context: context,
       );
+  Widget get CoverImage => Image.asset(
+        "assets/images/superhero.png",
 
+        alignment: Alignment.center,
+        fit: BoxFit.cover,
+      );
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -101,23 +106,22 @@ class _WaitingForVolunteerPageState extends State<WaitingForVolunteerPage>
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(
-                    height: MediaQuery.of(context).size.height / 4,
+                    height:50,
                   ),
-                  SizedBox(
-                    height: 10,
-                  ),
+
                   Padding(
-                    padding: const EdgeInsets.only(left: 15, right: 15),
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: Text(
                       "Hold on, we are looking for your hero!",
                       style: TextStyle(fontSize: 50),
                     ),
                   ),
-                  SpinKitFadingCircle(
-                    color: Colors.black,
-                    size: 50.0,
-                  ),
-               SizedBox(height:MediaQuery.of(context).size.height/4),
+                  // SpinKitFadingCircle(
+                  //   color: Colors.black,
+                  //   size: 50.0,
+                  // ),
+                  CoverImage,
+               SizedBox(height:75),
                CancelButton
                 ],
               ),

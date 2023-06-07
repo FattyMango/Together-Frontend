@@ -16,7 +16,7 @@ import 'package:together/singeltons/user_singelton.dart';
 import 'package:together/specialneeds/buttons/send_request.dart';
 import 'package:together/specialneeds/classes/request.dart';
 import 'package:together/specialneeds/pages/specialneeds_request_accepted_page.dart';
-import 'package:together/specialneeds/pages/send_request_page.dart';
+import 'package:together/specialneeds/pages/send_request_pages/set_location_request.dart';
 import 'package:together/pages/theme_container.dart';
 import 'package:latlong2/latlong.dart' as latLng;
 import 'package:together/specialneeds/pages/waiting_accept_request.dart';

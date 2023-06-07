@@ -43,6 +43,7 @@ class _VolunteerRequestAcceptedPageState
   TextEditingController _textEditingController = TextEditingController();
   late IOWebSocketChannel chatChannel;
 
+  Map<String,Map<String,String>> disabeled_features = {"N":{"1":"Elevator is disabeled i this building"}};
   bool isChatOpened = false;
 
   bool isNewMessage = false;
@@ -407,19 +408,7 @@ class _VolunteerRequestAcceptedPageState
         ),
       );
 
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: channel.stream,
-        builder: (context, wsData) {
-          if (wsData.hasData) handle_ws_message(wsData.requireData);
-
-          return Scaffold(
-            body: Stack(
-              children: [
-                MapWidget,
-                SizedBox.expand(
-                    child: DraggableScrollableSheet(
+DraggableScrollableSheet get DraggableSheet =>DraggableScrollableSheet(
                         initialChildSize: 0.3,
                         minChildSize: 0.25,
                         maxChildSize: 0.4,
@@ -480,7 +469,23 @@ class _VolunteerRequestAcceptedPageState
                               );
                             },
                           );
-                        }))
+                        });
+
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+        stream: channel.stream,
+        builder: (context, wsData) {
+          if (wsData.hasData) handle_ws_message(wsData.requireData);
+
+          return Scaffold(
+            body: Stack(
+              children: [
+                MapWidget,
+                SizedBox.expand(
+                    child: DraggableSheet)
+                                  
               ],
             ),
           );

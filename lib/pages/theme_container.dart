@@ -45,6 +45,9 @@ class _ThemeContainerState extends State<ThemeContainer> with PrefsMixin {
     //     ));
     return Scaffold(
       appBar: AppBar(
+        title: Text("Together",),
+        titleTextStyle: TextStyle(color: Colors.white,fontWeight: FontWeight.w500,fontSize: 20,),
+        centerTitle: true,
         backgroundColor: Colors.lightBlue.shade800,
         toolbarHeight: 40,
         shape: RoundedRectangleBorder(
@@ -56,6 +59,7 @@ class _ThemeContainerState extends State<ThemeContainer> with PrefsMixin {
       body: Container(
           color: Color.fromARGB(231, 240, 253, 255),
           child: ListView(
+            
             children: widget.children,
           )),
       drawer: widget.isDrawer

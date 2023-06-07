@@ -6,22 +6,22 @@ import 'package:together/request/requests.dart';
 
 class Request {
 
-  latLng.LatLng latlong;
+  latLng.LatLng? latlong;
 
-  String help_type, gender,description,square,building;
+  String? help_type, gender,description,square,building;
   Request(
-      {required this.gender,
-      required this.latlong,
-      required this.description,
-      required this.help_type,
-      required this.square,
-      required this.building,});
+      { this.gender,
+       this.latlong,
+       this.description,
+       this.help_type,
+       this.square,
+       this.building,});
 
   Future<RequestDeserializer?> send_request(String token) async {
     var response = await post_request(
         url: "http://143.42.55.127/request/api/create/",
         body: {
-          "location": "${latlong.latitude},${latlong.longitude}",
+          "location": "${latlong!.latitude},${latlong!.longitude}",
           "help_type": help_type,
           "gender": gender,
           "square":square,

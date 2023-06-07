@@ -12,9 +12,10 @@ import 'package:together/specialneeds/buttons/send_request.dart';
 import 'package:together/pages/theme_container.dart';
 import 'package:latlong2/latlong.dart' as latLng;
 import 'package:together/specialneeds/classes/request.dart';
+import 'package:together/specialneeds/pages/send_request_pages/set_constraints.dart';
 
-import '../../deserializers/user.dart';
-import '../buttons/drop_down_button.dart';
+import '../../../deserializers/user.dart';
+import '../../buttons/drop_down_button.dart';
 
 class SendRequestPage extends StatefulWidget {
   final Function submit_request;
@@ -33,10 +34,9 @@ class SendRequestPage extends StatefulWidget {
 }
 
 class _SendRequestPageState extends State<SendRequestPage> {
-  bool gender_constraint = false;
   late ValueNotifier<latLng.LatLng> pos;
 
-  late String square, building, description;
+  late String square, building;
 
   var square_list = ["A", "G", "C", "M", "N", "D", "PH", "CH"];
   var building_list = ["", "1", "2", "3", "4"];
@@ -48,7 +48,7 @@ class _SendRequestPageState extends State<SendRequestPage> {
 
     square = square_list.first;
     building = building_list.first;
-    description = "no data";
+
     super.initState();
   }
 
@@ -58,101 +58,72 @@ class _SendRequestPageState extends State<SendRequestPage> {
     super.dispose();
   }
 
+  Widget get SquareField => Row(
+        children: [
+          Icon(Icons.location_pin),
+          SizedBox(
+            width: 5,
+          ),
+          Text("Square: ",
+              style: TextStyle(
+                  color: Colors.black87,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700)),
+          SizedBox(
+            width: 31,
+          ),
+          SizedBox(
+            width: 80,
+            child: ListDropDownButton(
+                list: square_list,
+                onChanged: (String value) {
+                  setState(() {
+                    square = value;
+                  });
+                }),
+          ),
+        ],
+      );
+
+  Widget get BuildingField => Row(
+  
+        children: [
+          Icon(Icons.location_city_rounded),
+          SizedBox(
+            width: 5,
+          ),
+          Text("Building: ",
+              style: TextStyle(
+                  color: Colors.black87,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700)),
+                  SizedBox(width: 20,),
+          SizedBox(
+            width: 80,
+            child: ListDropDownButton(
+                list: building_list,
+                onChanged: (String value) {
+                  setState(() {
+                    building = value;
+                  });
+                }),
+          ),
+        ],
+      );
   Widget get LocationField => Padding(
         padding:
             const EdgeInsets.only(top: 10, bottom: 20, left: 20, right: 20),
         child: Center(
-          child: Row(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text("Square: ",
-                  style: TextStyle(
-                      color: Colors.black87,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700)),
+              SquareField,
               SizedBox(
-                width: 5,
+                height: 10,
               ),
-              SizedBox(
-                width: 70,
-                child: ListDropDownButton(
-                    list: square_list,
-                    onChanged: (String value) {
-                      setState(() {
-                        square = value;
-                      });
-                    }),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              Text("Building: ",
-                  style: TextStyle(
-                      color: Colors.black87,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700)),
-              SizedBox(
-                width: 70,
-                child: ListDropDownButton(
-                    list: building_list,
-                    onChanged: (String value) {
-                      setState(() {
-                        building = value;
-                      });
-                    }),
-              ),
+              BuildingField
             ],
-          ),
-        ),
-      );
-
-  Widget get GenderField => Padding(
-        padding: const EdgeInsets.only(top: 0, bottom: 10, left: 20),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Checkbox(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3.5)),
-              activeColor: Colors.greenAccent.shade700,
-              checkColor: Colors.white,
-              value: gender_constraint,
-              onChanged: (bool? value) {
-                setState(() {
-                  gender_constraint = value!;
-                });
-              },
-            ),
-
-            Text(
-                "${gender_constraint ? "Yes i need a ${widget.user.gender == "M" ? "male" : "female"}" : "No it does not matter"} ",
-                style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                    decoration: TextDecoration.none)),
-          ],
-        ),
-      );
-
-  Widget get DescriptionField => Padding(
-        padding:
-            const EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
-        child: SizedBox(
-          height: 60,
-          child: TextFormField(
-            onChanged: (value) {
-              setState(() {
-                description = value;
-              });
-            },
-            maxLines: null,
-            expands: true,
-            keyboardType: TextInputType.multiline,
-            decoration: InputDecoration(
-              filled: true,
-              hintText: 'I need to go to my class...',
-            ),
           ),
         ),
       );
@@ -160,8 +131,8 @@ class _SendRequestPageState extends State<SendRequestPage> {
   Widget get MapWidget => Padding(
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: Container(
-          constraints: BoxConstraints(
-              maxHeight: 300, minHeight: 100, maxWidth: 600, minWidth: 200),
+          height: MediaQuery.of(context).size.height / 1.8,
+          constraints: BoxConstraints(maxWidth: 600, minWidth: 200),
           child: ValueListenableBuilder(
             valueListenable: pos,
             builder: (context, value, child) => FlutterMap(
@@ -198,28 +169,52 @@ class _SendRequestPageState extends State<SendRequestPage> {
         ),
       );
 
-  Widget get SubmitButton => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Container(
-            child: SendRequestButton(submit_request: () {
-              return widget.submit_request(new Request(
-                  gender: gender_constraint ? widget.user.gender[0] : "N",
-                  latlong: pos.value,
-                  help_type: "M",
-                  building: building,
-                  description: description,
-                  square: square));
-            }),
-          ),
-        ),
-      );
   Widget HeaderText(String text) => Text(text,
       style: TextStyle(
         color: Colors.blueGrey.shade800,
         fontSize: 30,
         fontWeight: FontWeight.w700,
       ));
+
+  Widget get NextButton => Padding(
+        padding: const EdgeInsets.only(top: 20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(fixedSize: Size(125, 50),backgroundColor: Colors.lightBlue.shade700),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            SetConstraints(
+                          submit_request: widget.submit_request,
+                          user: widget.user,
+                          request: new Request(
+                              latlong: pos.value,
+                              help_type: "M",
+                              building: building,
+                              square: square),
+                        ),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                              opacity: animation, child: child);
+                        },
+                      ));
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text("Next",style: TextStyle(fontSize: 20),),
+                    Icon(Icons.arrow_forward_ios_outlined,size: 20,)
+                  ],
+                )),
+          ],
+        ),
+      );
   @override
   Widget build(BuildContext context) {
     return ThemeContainer(isDrawer: true, children: [
@@ -234,12 +229,7 @@ class _SendRequestPageState extends State<SendRequestPage> {
             MapWidget,
             HeaderText("Where are you?"),
             LocationField,
-            HeaderText(
-                "Do you need a ${widget.user.gender == "M" ? "male" : "female"}?"),
-            GenderField,
-            HeaderText("Describe your need"),
-            DescriptionField,
-            SubmitButton
+            NextButton
           ],
         ),
       ),
