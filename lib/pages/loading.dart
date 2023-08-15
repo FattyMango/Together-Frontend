@@ -13,6 +13,7 @@ import 'package:together/volunteer/pages/volunteer_request_accepted_page.dart';
 
 import '../abstracts/abstract_state.dart';
 import '../background.dart';
+import '../misc/backend.dart';
 import '../request/requests.dart';
 import '../specialneeds/pages/specialneeds_request_accepted_page.dart';
 
@@ -38,7 +39,7 @@ class _LoadingPageState extends AbstractHomePageState with UserFtecherMixin {
   Future<RequestDeserializer?> get_latest_request(bool isVolunteer) async {
     var data = await get_request(
         url:
-            'http://143.42.55.127/request/api/${isVolunteer ? "volunteer" : "specialneeds"}/last/',
+            apiUrl+'http:///request/api/${isVolunteer ? "volunteer" : "specialneeds"}/last/',
         headers: {"Authorization": "Token " + user.token});
     // print(data);
     if (data["response"] == "Error")

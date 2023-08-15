@@ -8,6 +8,7 @@ import 'package:together/pages/auth/login.dart';
 import 'package:together/request/requests.dart';
 
 import '../../deserializers/user.dart';
+import '../../misc/backend.dart';
 import '../../singeltons/user_singelton.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -67,7 +68,7 @@ class _RegisterPageState extends State<RegisterPage> with PrefsMixin {
         errorMessage = '';
       });
       Map<String, dynamic> data = await post_request(
-          url: 'http://143.42.55.127/user/api/register/',
+          url:  apiUrl+'/user/api/register/',
           body: {
             'justID': _justID.toString(),
             'password': _password,

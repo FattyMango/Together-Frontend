@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:together/deserializers/request.dart';
 import 'package:together/deserializers/user.dart';
 
+import '../misc/backend.dart';
+
 void main() {
   // UserDeserializer user = UserDeserializer({
   //   'email': 'mhabdallah19@cit.just.edu.jo',
@@ -38,8 +40,8 @@ void main() {
       "location": "32.494685,35.986186",
       "help_type": "E",
       "gender": "M",
-      "request_websocket": "ws://143.42.55.127/ws/request/3/",
-      "chatroom_websocket": "ws://143.42.55.127/ws/chatroom/3/"
+      "request_websocket":  websocketUrl+"/ws/request/3/",
+      "chatroom_websocket":  websocketUrl+"/ws/chatroom/3/"
     }
   };
 

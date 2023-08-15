@@ -168,7 +168,7 @@ class _SetConstraintsState extends State<SetConstraints> {
                   height: 20,
                 ),
                 HeaderText(
-                    text:"Do you need a ${widget.user.gender == "M" ? "male" : "female"}?"),
+                    text:"What is your need?"),
                 DescriptionField,
                 SizedBox(
                   height: 20,

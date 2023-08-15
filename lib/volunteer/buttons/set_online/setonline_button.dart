@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:together/deserializers/user.dart';
 import 'package:together/request/requests.dart';
 
+import '../../../misc/backend.dart';
+
 class SetOnlineButton extends StatefulWidget {
   final UserDeserializer user;
   final bool is_online;
@@ -14,7 +16,7 @@ class SetOnlineButton extends StatefulWidget {
 
 class _SetOnlineButtonState extends State<SetOnlineButton> {
   set_online() async {
-      Map<String, dynamic> res = await put_request(url: "http://143.42.55.127/user/api/volunteer/setonline/", body: {"is_online":(!widget.is_online).toString()},headers: {"Authorization":"Token "+widget.user.token});
+      Map<String, dynamic> res = await put_request(url: apiUrl+"/user/api/volunteer/setonline/", body: {"is_online":(!widget.is_online).toString()},headers: {"Authorization":"Token "+widget.user.token});
       if(res["response"]=="Error") return;
       widget.set_is_online(res);
   }

@@ -3,6 +3,7 @@ import 'package:together/volunteer/buttons/request/request_button.dart';
 
 import '../../../deserializers/request.dart';
 import '../../../deserializers/user.dart';
+import '../../../misc/backend.dart';
 import '../../../request/requests.dart';
 
 class CancelRequestButton extends AbstractRequestButton {
@@ -21,7 +22,7 @@ class CancelRequestButton extends AbstractRequestButton {
 class _CancelRequestButtonState extends AbstractRequestButtonState {
   decline_request() async {
     Map<String, dynamic> res = await put_request(
-        url: "http://143.42.55.127/request/api/cancel/${widget.request.id.toString() }/" 
+        url: apiUrl+"/request/api/cancel/${widget.request.id.toString() }/" 
             ,
 
         headers: {"Authorization": "Token " + widget.user.token}, body: {});

@@ -3,6 +3,7 @@ import 'package:together/deserializers/request.dart';
 import 'package:together/volunteer/pages/volunteer_request_accepted_page.dart';
 
 import '../../../deserializers/user.dart';
+import '../../../misc/backend.dart';
 import '../../../request/requests.dart';
 import 'request_button.dart';
 
@@ -20,7 +21,7 @@ class _AcceptRequestButtonState extends AbstractRequestButtonState{
 
   accept_request() async {
     Map<String, dynamic> res = await put_request(
-        url: "http://143.42.55.127/request/api/accept/" + widget.request.id.toString() + "/",
+        url: apiUrl+"/request/api/accept/" + widget.request.id.toString() + "/",
         body: {},
         headers: {"Authorization": "Token " + widget.user.token});
     print(res);

@@ -3,6 +3,7 @@ import 'package:together/volunteer/buttons/request/request_button.dart';
 
 import '../../../deserializers/request.dart';
 import '../../../deserializers/user.dart';
+import '../../../misc/backend.dart';
 import '../../../request/requests.dart';
 
 class DeclineRequestButton extends AbstractRequestButton {
@@ -22,7 +23,7 @@ class _DeclineRequestButtonState extends AbstractRequestButtonState {
   decline_request() async {
     print("here");
     Map<String, dynamic> res = await get_request(
-        url: "http://143.42.55.127/request/api/decline/${widget.request.id.toString() }/" 
+        url: apiUrl+"/request/api/decline/${widget.request.id.toString() }/" 
             ,
 
         headers: {"Authorization": "Token " + widget.user.token});

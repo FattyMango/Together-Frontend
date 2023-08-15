@@ -19,6 +19,8 @@ import 'package:latlong2/latlong.dart' as latLng;
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 
+import '../misc/backend.dart';
+
 mixin UserFtecherMixin on AbstractHomePageState {
   Future<UserDeserializer> init_user() async {
     await set_prefs();
@@ -30,7 +32,7 @@ mixin UserFtecherMixin on AbstractHomePageState {
     user = new UserDeserializer(userJson);
 
     var data = await get_request(
-        url: 'http://143.42.55.127/user/api/',
+        url:  apiUrl+'/user/api/',
         headers: {"Authorization": "Token " + user.token});
 
     if (data["response"] == "Error")

@@ -21,6 +21,7 @@ import 'package:together/pages/theme_container.dart';
 import 'package:latlong2/latlong.dart' as latLng;
 import 'package:together/specialneeds/pages/waiting_accept_request.dart';
 import '../deserializers/user.dart';
+import '../misc/backend.dart';
 import 'buttons/drop_down_button.dart';
 
 class SpecialNeedsHomePage extends StatefulWidget {
@@ -97,7 +98,7 @@ class SpecialNeedsHomePageState extends State<SpecialNeedsHomePage>
 
   @override
   String get get_ws_url =>
-      "ws://143.42.55.127/ws/user/${user.justID.toString()}/";
+       websocketUrl+"/ws/user/${user.justID.toString()}/";
 
   setCanFetchLocation(value) {
     setState(() {

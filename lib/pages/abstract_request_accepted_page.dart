@@ -15,6 +15,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:latlong2/latlong.dart' as latLng;
 import 'package:auto_size_text/auto_size_text.dart';
 import '../../request/requests.dart';
+import '../misc/backend.dart';
 
 class VolunteerRequestAcceptedPage extends StatefulWidget {
   final RequestDeserializer request;
@@ -109,7 +110,7 @@ class _VolunteerRequestAcceptedPageState
     controller.move(latlong.value, 18);
     var res = await get_request(
         url:
-            "http://143.42.55.127/location/update/volunteer/${ll.latitude}/${ll.longitude}/",
+             apiUrl+"/location/update/volunteer/${ll.latitude}/${ll.longitude}/",
         headers: {"Authorization": "Token " + widget.user.token});
 
     calc_distance();

@@ -22,6 +22,7 @@ import 'dart:async';
 import 'package:geolocator/geolocator.dart';
 
 import '../abstracts/abstract_state.dart';
+import '../misc/backend.dart';
 import '../mixins/location_mixin.dart';
 import '../mixins/periodic_mixin.dart';
 import '../mixins/prefs_mixin.dart';
@@ -54,6 +55,7 @@ class _VolunteerHomePageState extends State<VolunteerHomePage>
   @override
   void initState() {
     // TODO: implement initState
+    is_online = false;
     Noti.initialize(flutterLocalNotificationsPlugin);
     handle_user_changes(UserDeserializerSingleton.instance);
     set_prefs();
@@ -85,11 +87,11 @@ class _VolunteerHomePageState extends State<VolunteerHomePage>
 
   @override
   String get get_ws_url =>
-      "ws://143.42.55.127/ws/user/${user.justID.toString()}/";
+       websocketUrl+"/ws/user/${user.justID.toString()}/";
 
   update_online() async {
     Map<String, dynamic> res = await put_request(
-        url: "http://143.42.55.127/user/api/volunteer/setonline/",
+        url: apiUrl+"/user/api/volunteer/setonline/",
         body: {"is_online": is_online.toString()},
         headers: {"Authorization": "Token " + user.token});
 
@@ -120,7 +122,7 @@ class _VolunteerHomePageState extends State<VolunteerHomePage>
       Position pos = await determinePosition();
       var res = await get_request(
           url:
-              "http://143.42.55.127/location/update/volunteer/${pos.latitude}/${pos.longitude}/",
+              apiUrl+"/location/update/volunteer/${pos.latitude}/${pos.longitude}/",
           headers: {"Authorization": "Token " + this.user.token});
     }
   }
@@ -138,7 +140,7 @@ class _VolunteerHomePageState extends State<VolunteerHomePage>
     await prefs.setString('user', json.encode(res));
 
     UserDeserializer u = new UserDeserializer(json.encode(res));
-    print(u.is_online);
+
     UserDeserializerSingleton.setInstance(u);
     if (is_online != res["is_online"])
       setState(() {

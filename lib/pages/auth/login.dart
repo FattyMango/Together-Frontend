@@ -7,6 +7,7 @@ import 'package:together/deserializers/user.dart';
 import 'package:together/mixins/prefs_mixin.dart';
 import 'package:together/singeltons/user_singelton.dart';
 
+import '../../misc/backend.dart';
 import '../../request/requests.dart';
 
 class LoginPage extends StatefulWidget {
@@ -62,7 +63,7 @@ class _LoginPageState extends State<LoginPage> with PrefsMixin {
       // Make the API request to authenticate the user
 
       var data = await post_request(
-          url: 'http://143.42.55.127/user/api/login/',
+          url:  apiUrl+'/user/api/login/',
           body: {
             'username': _justID.toString(),
             'password': _password,

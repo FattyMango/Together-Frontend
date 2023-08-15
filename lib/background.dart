@@ -13,6 +13,7 @@ import 'package:together/volunteer/home.dart';
 import 'package:web_socket_channel/io.dart';
 
 import 'deserializers/user.dart';
+import 'misc/backend.dart';
 
 Future<void> initializeService(UserDeserializer s) async {
   final service = FlutterBackgroundService();
@@ -64,7 +65,7 @@ void onStart(ServiceInstance service) async {
   if (UserDeserializerSingleton.is_instance && user.is_volunteer) {
     final channel = IOWebSocketChannel.connect(
         Uri.parse(
-            "ws://143.42.55.127/ws/user/${UserDeserializerSingleton.instance.justID}/"),
+            websocketUrl+"/ws/user/${UserDeserializerSingleton.instance.justID}/"),
         headers: {
           "Authorization": "Token ${UserDeserializerSingleton.instance.token}"
         });

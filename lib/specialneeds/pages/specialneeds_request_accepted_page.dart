@@ -17,6 +17,7 @@ import 'package:together/specialneeds/widgets/volunteer_card.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:latlong2/latlong.dart' as latLng;
+import '../../misc/backend.dart';
 import '../../request/requests.dart';
 import '../buttons/send_request.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -126,7 +127,7 @@ class _RequestAcceptedPageState extends State<RequestAcceptedPage>
 
   Future<latLng.LatLng> fetch_location() async {
     var res = await get_request(
-        url: "http://143.42.55.127/location/get/${widget.volunteer.justID}/",
+        url: apiUrl+"/location/get/${widget.volunteer.justID}/",
         headers: {"Authorization": "Token " + widget.user.token});
 
     latLng.LatLng ll = new latLng.LatLng(0, 0);
@@ -600,7 +601,7 @@ Widget get ChatButton => Stack(children: [
                       print(widget.user.id);
                       print(rating);
                       print(description);
-                      var res = await post_request(url: "http://143.42.55.127/report/create/", body: {
+                      var res = await post_request(url: apiUrl+"/report/create/", body: {
                         "request": widget.request.id.toString(),
                         "content" : description??"",
                         "rating": rating.toInt().toString(),

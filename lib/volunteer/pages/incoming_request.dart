@@ -8,6 +8,7 @@ import 'package:together/pages/theme_container.dart';
 import 'package:together/volunteer/pages/volunteer_request_accepted_page.dart';
 import 'package:together/widgets/widgets/map.dart';
 
+import '../../misc/backend.dart';
 import '../../request/requests.dart';
 
 class IncomingRequestPage extends StatefulWidget {
@@ -71,7 +72,7 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
         child: Center(
           child: Container(
             child: Text(
-              widget.request.description!,
+              widget.request.description == "no data"?"":widget.request.description!,
               style: TextStyle(
                   fontSize: 18,
                   color: Colors.black87,
@@ -137,7 +138,7 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
     print("here");
     Map<String, dynamic> res = await get_request(
         url:
-            "http://143.42.55.127/request/api/decline/${widget.request.id.toString()}/",
+            apiUrl+"/request/api/decline/${widget.request.id.toString()}/",
         headers: {"Authorization": "Token " + widget.user.token});
 
     Future.delayed(Duration.zero, () {
@@ -147,7 +148,7 @@ class _IncomingRequestPageState extends State<IncomingRequestPage> {
 
   accept_request() async {
     Map<String, dynamic> res = await put_request(
-        url: "http://143.42.55.127/request/api/accept/" +
+        url: apiUrl+"/request/api/accept/" +
             widget.request.id.toString() +
             "/",
         body: {},
